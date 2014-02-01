@@ -29,7 +29,16 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring(
-	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_0.lhe'
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_0.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_1.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_2.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_3.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_4.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_5.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_6.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_7.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_8.lhe',
+	'file:WHiggs0P_M-125p6_8TeV-JHUGenV4-private_9.lhe'
 	)
 )
 

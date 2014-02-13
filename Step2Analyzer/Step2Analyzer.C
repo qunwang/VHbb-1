@@ -151,11 +151,6 @@ void Step2Analyzer::Loop()
 		hist_phi1.Fill(phi1);
 		hist_mVH.Fill(mVH);
 		hist_rapidityVH.Fill(rapidityVH);
-		
-
-		if(TMath::Abs(phi)<1.7 &&TMath::Abs(phi)>1.3 ){
-			cout<<"strange peak"<<endl;
-		}
 
 	}
 

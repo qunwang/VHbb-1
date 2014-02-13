@@ -12,11 +12,15 @@
 
 
 void runStep2Analyzer() {
+	gROOT->LoadMacro("METzCalculator.cc+");
 	gROOT->LoadMacro("Step2Analyzer.C+");
 	gROOT->LoadMacro("tdrstyle.C");
 	setTDRStyle(); //plotting style
 
 	runStep2Analyzer_signle("Step2_WHiggs0P_M-125p6_8TeV-JHUGenV4-private");
+	//runStep2Analyzer_signle("Step2_WHiggs0PH_M-125p6_8TeV-JHUGenV4-private");
+	runStep2Analyzer_signle("Step2_WHiggs0M_M-125p6_8TeV-JHUGenV4-private");
+	//runStep2Analyzer_signle("Step2_WHiggs0Mf05ph0_M-125p6_8TeV-JHUGenV4-private");
 }
 
 void runStep2Analyzer_signle( TString samplename) 
@@ -24,7 +28,7 @@ void runStep2Analyzer_signle( TString samplename)
 
 	// mkdir plots fold accoding time
 	TString dir = gSystem->UnixPathName(gInterpreter->GetCurrentMacroName());
-	dir.ReplaceAll("runMyClass.C","");
+	dir.ReplaceAll("runStep2Analyzer.C","");
 	dir.ReplaceAll("/./","/");
 	TDatime dt;
 

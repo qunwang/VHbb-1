@@ -38,7 +38,7 @@ METzCalculator::Calculate(int type) {
 
 	if (tmproot<0) {
 		isComplex_= true;
-		cout<<"isComplex_"<<endl;
+		//cout<<"isComplex_"<<endl;
 		pznu = - B/(2*A); // take real part of complex roots
 		otherSol_ = pznu;
 

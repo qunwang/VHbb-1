@@ -1576,10 +1576,7 @@ Int_t Step2Analyzer::Cut(Long64_t entry)
 	//if( !( ) ) return -1;
 	
 	if(  !(H.HiggsFlag==1 && abs(hJet_eta[0])<2.5 && abs(hJet_eta[1])<2.5 && hJet_id[0]==1 && hJet_id[1]==1 && hJet_puJetIdL[0]>0 && hJet_puJetIdL[1]>0 && hJet_csv[0]>0 && hJet_csv[1]>0  ) ) return -1;
-
 	if( !((Vtype==2||Vtype==3) && V.pt>130 && hJet_pt[0]>30 && hJet_pt[1]>30 ) ) return -1;
-
-
 
 	if(!(nhJets==2)) return -1;
 	if(!(nvlep==1)) return -1;

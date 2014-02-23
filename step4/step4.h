@@ -1144,8 +1144,11 @@ Int_t step4::Cut(Long64_t entry)
 {
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
-// returns -1 otherwise.
-   return 1;
+// returns 0 otherwise.
+
+  if(nvlep<1) return 0;
+    
+  return 1;
 }
 
 TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met,TString lep_type, Int_t diffMode=0);//diffMode: different neutrino vz 

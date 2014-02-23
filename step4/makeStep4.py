@@ -29,7 +29,7 @@ shutil.copytree(inputDir,condorDir,ignore=files)
 
 for directory, subDirectories, files in os.walk(inputDir):
     if files:
-        relPath=directory.replace(inputDir+'/','')
+        relPath=directory.replace(inputDir,'')
         
         dict={'RUNDIR':runDir, 'RELPATH':relPath, 'CONDORDIR':condorDir, 'INPUTDIR':inputDir}
         jdfName='%(CONDORDIR)s/%(RELPATH)s/job'%dict

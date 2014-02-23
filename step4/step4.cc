@@ -10,6 +10,37 @@ void step4::Loop(){
 
    if (inputTree == 0) return;
 
+   inputTree->SetBranchStatus("*",0);
+
+   //Specify branches to keep
+   inputTree->SetBranchStatus("H",1);
+   inputTree->SetBranchStatus("hJet_pt",1);
+   inputTree->SetBranchStatus("hJet_eta",1);
+   inputTree->SetBranchStatus("hJet_phi",1);
+   inputTree->SetBranchStatus("hJet_e",1);
+   inputTree->SetBranchStatus("hJet_id",1);
+   inputTree->SetBranchStatus("hJet_puJetIdL",1);
+   inputTree->SetBranchStatus("hJet_csv",1);
+   inputTree->SetBranchStatus("vLepton_pt",1);
+   inputTree->SetBranchStatus("vLepton_eta",1);
+   inputTree->SetBranchStatus("vLepton_phi",1);
+   inputTree->SetBranchStatus("vLepton_mass",1);
+   inputTree->SetBranchStatus("vLepton_type",1);
+   inputTree->SetBranchStatus("vLepton_charge",1);
+   inputTree->SetBranchStatus("METtype1corr",1);
+   inputTree->SetBranchStatus("V",1);
+   inputTree->SetBranchStatus("Vtype",1);
+   inputTree->SetBranchStatus("x_costheta1",1);
+   inputTree->SetBranchStatus("x_costheta2",1);
+   inputTree->SetBranchStatus("x_phi",1);
+   inputTree->SetBranchStatus("x_costhetastar",1);
+   inputTree->SetBranchStatus("x_phi1",1);
+   inputTree->SetBranchStatus("x_mVH",1);
+   inputTree->SetBranchStatus("x_rapidityVH",1);
+
+   outputFile->cd();
+   TTree *outputTree = inputTree->CloneTree(0);
+
    //Get the 4-vect of Hbb, Wlv
    TLorentzVector bjet0;
    TLorentzVector bjet1;
@@ -27,7 +58,8 @@ void step4::Loop(){
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = inputTree->GetEntry(jentry);   nbytes += nb;
-      // if (Cut(ientry) < 0) continue;
+      
+      if (Cut(ientry) != 1) continue;  //Pre-selection
 
       //Get the 4-vect of Hbb, Wlv                                                                                                                                                              
       bjet0.SetPtEtaPhiE(hJet_pt[0],hJet_eta[0], hJet_phi[0],hJet_e[0]);
@@ -96,6 +128,7 @@ void step4::Loop(){
       x_mVH = (float) p4_VH.M();
       x_rapidityVH = (float) p4_VH.Rapidity();
 
+      /*
       b_x_costheta1->Fill();
       b_x_costheta2->Fill();
       b_x_phi->Fill();
@@ -103,38 +136,11 @@ void step4::Loop(){
       b_x_phi1->Fill();
       b_x_mVH->Fill();
       b_x_rapidityVH->Fill();
+      */
+
+      outputTree->Fill();
    }
-
-   inputTree->SetBranchStatus("*",0);
-
-   //Specify branches to keep                                                                                                                                                                        
-   inputTree->SetBranchStatus("H",1);
-   inputTree->SetBranchStatus("hJet_pt",1);
-   inputTree->SetBranchStatus("hJet_eta",1);
-   inputTree->SetBranchStatus("hJet_phi",1);
-   inputTree->SetBranchStatus("hJet_e",1);
-   inputTree->SetBranchStatus("hJet_id",1);
-   inputTree->SetBranchStatus("hJet_puJetIdL",1);
-   inputTree->SetBranchStatus("hJet_csv",1);
-   inputTree->SetBranchStatus("vLepton_pt",1);
-   inputTree->SetBranchStatus("vLepton_eta",1);
-   inputTree->SetBranchStatus("vLepton_phi",1);
-   inputTree->SetBranchStatus("vLepton_mass",1);
-   inputTree->SetBranchStatus("vLepton_type",1);
-   inputTree->SetBranchStatus("vLepton_charge",1);
-   inputTree->SetBranchStatus("METtype1corr",1);
-   inputTree->SetBranchStatus("V",1);
-   inputTree->SetBranchStatus("Vtype",1);
-   inputTree->SetBranchStatus("x_costheta1",1);
-   inputTree->SetBranchStatus("x_costheta2",1);
-   inputTree->SetBranchStatus("x_phi",1);
-   inputTree->SetBranchStatus("x_costhetastar",1);
-   inputTree->SetBranchStatus("x_phi1",1);
-   inputTree->SetBranchStatus("x_mVH",1);
-   inputTree->SetBranchStatus("x_rapidityVH",1);
-
-   outputFile->cd();
-   TTree *outputTree = inputTree->CloneTree();
+   
    outputTree->Write();
    outputFile->Write();
 

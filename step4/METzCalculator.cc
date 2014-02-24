@@ -103,7 +103,7 @@ METzCalculator::Calculate(int type) {
 				if ( costhcm1 > costhcm2 ) { pznu = tmpsol1; otherSol_ = tmpsol2; }
 				else { pznu = tmpsol2;otherSol_ = tmpsol1; }
 			}
-		
+			
         }
 
         //Particle neutrino;

@@ -15,6 +15,7 @@ void step4::Loop(){
    //Specify branches to keep
    inputTree->SetBranchStatus("H",1);
    inputTree->SetBranchStatus("hJet_pt",1);
+   inputTree->SetBranchStatus("hJet_ptCorr",1);
    inputTree->SetBranchStatus("hJet_eta",1);
    inputTree->SetBranchStatus("hJet_phi",1);
    inputTree->SetBranchStatus("hJet_e",1);
@@ -64,18 +65,12 @@ void step4::Loop(){
       //Get the 4-vect of Hbb, Wlv                                                                                                                                                              
       bjet0.SetPtEtaPhiE(hJet_pt[0],hJet_eta[0], hJet_phi[0],hJet_e[0]);
       bjet1.SetPtEtaPhiE(hJet_pt[1],hJet_eta[1], hJet_phi[1],hJet_e[1]);
-      if(vLepton_mass[0]<0){
-	cout<<"Error! Lep mass is nega="<<vLepton_mass[0]<<endl;
-	cout<<"nvlep=" <<nvlep<<endl;
-	cout<<"nhJets=" <<nhJets<<endl;
-      }
+
       chargelep.SetPtEtaPhiM(vLepton_pt[0], vLepton_eta[0], vLepton_phi[0], vLepton_mass[0]);
       if(vLepton_type[0]==11){ lep_type="electron";}
       else{
 	if(vLepton_type[0]==13){ lep_type="muon";
-	} else{
-	  cout<<"Error! Unknow Lep="<<vLepton_type[0];
-	}
+	} 
       }
       
       //use MET type1 corr                                                                                                                                                                      
@@ -102,15 +97,9 @@ void step4::Loop(){
 	if(vLepton_charge[0]==-1){
 	  fs_f0=chargelep;
 	  fs_f1=neutrino;
-	}else{
-	  cout<<"Error! Unknow charge: "<<vLepton_charge[0]<<endl;
 	}
       }
       fs_b0=bjet0; fs_b1=bjet1;
-      if(bjet0.Pt() <bjet1.Pt()){
-	cout<<"strange: bjet0 pT < bjet1 pT"<<endl;
-	fs_b0=bjet1;    fs_b1=bjet0;
-      }
 
       TLorentzVector p4_Vff = fs_f0 + fs_f1; //Four-vector of V that decays to two fermions                                                                                                     
       TLorentzVector p4_Hbb = fs_b0 + fs_b1; //Four-vector of H                                                                                                                                 
@@ -128,21 +117,10 @@ void step4::Loop(){
       x_mVH = (float) p4_VH.M();
       x_rapidityVH = (float) p4_VH.Rapidity();
 
-      /*
-      b_x_costheta1->Fill();
-      b_x_costheta2->Fill();
-      b_x_phi->Fill();
-      b_x_costhetastar->Fill();
-      b_x_phi1->Fill();
-      b_x_mVH->Fill();
-      b_x_rapidityVH->Fill();
-      */
-
       outputTree->Fill();
    }
    
    outputTree->Write();
-   outputFile->Write();
 
 }
 
@@ -155,7 +133,6 @@ TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met, TString
   metzcal.SetMET(met);
   metzcal.SetLepton(chargelep);
   if(lep_type=="electron" || lep_type=="muon") metzcal.SetLeptonType(lep_type.Data());
-  else cout<<"Error! Unknow Lep="<<lep_type.Data();
   Double_t pzNu1=metzcal.Calculate(diffMode);
   //Double_t pzNu2=metzcal.getOther();
 
@@ -280,7 +257,4 @@ void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector
   double sgnPhi1 = tmpSgnPhi1/fabs(tmpSgnPhi1);
   Phi1 = sgnPhi1 * acos( normal1_BX.Dot( normalSC_BX) );
 
-  // std::cout << "extractAngles: " << std::endl;
-  // std::cout << "costhetastar = " << costhetastar << ", costheta1 = " << costheta1 << ", costheta2 = " << costheta2 << std::endl;
-  // std::cout << "Phi = " << Phi << ", Phi1 = " << Phi1 << std::endl;
 }

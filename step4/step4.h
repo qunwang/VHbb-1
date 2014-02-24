@@ -757,7 +757,7 @@ step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inpu
   inputFile=new TFile(inputFileName);
   inputTree=(TTree*)inputFile->Get("tree");
   
-  outputFile=new TFile(outputFileName,"CREATE");
+  outputFile=new TFile(outputFileName,"RECREATE");
   
   Init(inputTree);
 }
@@ -1146,7 +1146,7 @@ Int_t step4::Cut(Long64_t entry)
 // returns  1 if entry is accepted.
 // returns 0 otherwise.
 
-  if(nvlep<1) return 0;
+  if(Vtype>3) return 0;  //Only keep Z->ell ell and W->ell nu events - 0=Zmumu, 1=Zee, 2=Wmunu, 3=Wenu
     
   return 1;
 }

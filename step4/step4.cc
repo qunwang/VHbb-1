@@ -22,6 +22,7 @@ void step4::Loop(){
    inputTree->SetBranchStatus("hJet_id",1);
    inputTree->SetBranchStatus("hJet_puJetIdL",1);
    inputTree->SetBranchStatus("hJet_csv",1);
+   inputTree->SetBranchStatus("hJet_flavour",1);
    inputTree->SetBranchStatus("vLepton_pt",1);
    inputTree->SetBranchStatus("vLepton_eta",1);
    inputTree->SetBranchStatus("vLepton_phi",1);
@@ -31,6 +32,20 @@ void step4::Loop(){
    inputTree->SetBranchStatus("METtype1corr",1);
    inputTree->SetBranchStatus("V",1);
    inputTree->SetBranchStatus("Vtype",1);
+   inputTree->SetBranchStatus("naJets",1);
+   inputTree->SetBranchStatus("nalep",1);
+   inputTree->SetBranchStatus("HVdPhi",1);
+   inputTree->SetBranchStatus("effectiveLumi",1);
+   inputTree->SetBranchStatus("weightTrig2012SingleEle",1);
+   inputTree->SetBranchStatus("weightTrig2012SingleMuon",1);
+   inputTree->SetBranchStatus("PUweight",1);
+   inputTree->SetBranchStatus("PUweightP",1);
+   inputTree->SetBranchStatus("PUweightM",1);
+   inputTree->SetBranchStatus("weightSignalEWK",1);
+   inputTree->SetBranchStatus("weightSignalQCD",1);
+   inputTree->SetBranchStatus("triggerFlags",1);
+   //inputTree->SetBranchStatus("",1);
+
    inputTree->SetBranchStatus("x_costheta1",1);
    inputTree->SetBranchStatus("x_costheta2",1);
    inputTree->SetBranchStatus("x_phi",1);
@@ -38,6 +53,8 @@ void step4::Loop(){
    inputTree->SetBranchStatus("x_phi1",1);
    inputTree->SetBranchStatus("x_mVH",1);
    inputTree->SetBranchStatus("x_rapidityVH",1);
+
+   inputTree->SetBranchStatus("lMETdPhi",1);
 
    outputFile->cd();
    TTree *outputTree = inputTree->CloneTree(0);
@@ -72,13 +89,15 @@ void step4::Loop(){
 	if(vLepton_type[0]==13){ lep_type="muon";
 	} 
       }
-      
+
       //use MET type1 corr                                                                                                                                                                      
       met.SetPtEtaPhiE(METtype1corr_et, 0, METtype1corr_phi, METtype1corr_et);
       neutrino=getNeutrino(chargelep, met, lep_type, 0);
       
       higgs=bjet0+bjet1;
       wlep=chargelep+neutrino;
+
+      lMETdPhi=chargelep.DeltaPhi(met);
 
       //I assume you have the following four four-vectors:                                                                                                                                      
       //fs_f0 is the four-vector of the fermion particle                                                                                                                                        
@@ -114,6 +133,7 @@ void step4::Loop(){
       x_phi = (float) a_Phi1;
       x_costhetastar = TMath::Abs( (float) a_costheta2);
       x_phi1 = (float) a_Phi;
+      //x_phi2 = TMath::Pi() - x_phi1 - x_phi;
       x_mVH = (float) p4_VH.M();
       x_rapidityVH = (float) p4_VH.Rapidity();
 

@@ -61,6 +61,8 @@ public :
    Float_t x_mVH;
    Float_t x_rapidityVH;
    
+   Float_t lMETdPhi;
+   
    // Declaration of leaf types
    Float_t         lheV_pt;
    Float_t         lheHT;
@@ -426,6 +428,8 @@ public :
    TBranch *b_x_phi1;
    TBranch *b_x_mVH;
    TBranch *b_x_rapidityVH;
+   
+   TBranch *b_lMETdPhi;
 
    // List of branches
    TBranch        *b_lheV_pt;   //!
@@ -812,6 +816,8 @@ void step4::Init(TTree *tree)
    b_x_mVH=inputTree->Branch("x_mVH",&x_mVH,"x_mVH/F");
    b_x_rapidityVH=inputTree->Branch("x_rapidityVH",&x_rapidityVH,"x_rapidityVH/F");
    
+   b_lMETdPhi=inputTree->Branch("lMETdPhi",&lMETdPhi,"lMETdPhi/F");
+
    inputTree->SetBranchAddress("lheV_pt", &lheV_pt, &b_lheV_pt);
    inputTree->SetBranchAddress("lheHT", &lheHT, &b_lheHT);
    inputTree->SetBranchAddress("lheNj", &lheNj, &b_lheNj);

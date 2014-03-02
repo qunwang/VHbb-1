@@ -19,7 +19,7 @@ TH1.SetDefaultSumw2(True)
 
 class Plot:
 
-    def __init__(self,name,distribution,bins=None,nBins=100,xMin=0,xMax=100,xTitle='',yLog=True,cuts="1",channel=4):
+    def __init__(self,name,distribution,bins=None,nBins=100,xMin=0,xMax=100,xTitle='',yLog=True,cuts="1",channel=3):
         self.name=name; self.distribution=distribution; self.bins=bins; self.nBins=nBins; self.xMin=xMin; self.xMax=xMax; self.xTitle=xTitle; self.yLog=yLog; self.cuts=cuts; self.channel=channel
 
         if self.bins:
@@ -49,7 +49,8 @@ class Plot:
         
         #get histograms with proper normalization
         for sample in samples:
-
+            print sample.name
+            
             #skip electron (muon) data for muon (electron) channel
             if self.channel==0 or self.channel==2:
                 if sample.channel=='el': continue
@@ -77,9 +78,9 @@ class Plot:
                 weight+=' / effectiveLumi'
 
             if sample.type=='WJets'.lower():
-                self.Wlight=sample.h.Clone(self.name+'_light'); self.Wlight.Sumw2()
-                self.Wb=sample.h.Clone(self.name+'_b'); self.Wb.Sumw2()
-                self.Wbb=sample.h.Clone(self.name+'_bb'); self.Wbb.Sumw2()
+                self.Wlight=sample.h.Clone(hName+'_light'); self.Wlight.Sumw2()
+                self.Wb=sample.h.Clone(hName+'_b'); self.Wb.Sumw2()
+                self.Wbb=sample.h.Clone(hName+'_bb'); self.Wbb.Sumw2()
 
                 #FIXME - shouldn't have hardcoded 0
                 sample.chain.Draw(self.distribution+'>>'+hName+'_light',weight+' * '+str(scaleFactors[0]['Wlight'])+' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==0)','GOFF')
@@ -140,8 +141,8 @@ class Plot:
         self.ewk.SetLineColor(ROOT.kGreen-2)
         self.top.SetFillColor(ROOT.kRed-7)
         self.top.SetLineColor(ROOT.kRed-4)
-        self.other.SetFillColor(ROOT.kBlue)
-        self.other.SetLineColor(ROOT.kBlue)
+        self.other.SetFillColor(ROOT.kBlue-7)
+        self.other.SetLineColor(ROOT.kBlue-3)
         self.data.SetMarkerStyle(20)
         
         self.backgroundStack.Add(self.other)
@@ -150,6 +151,9 @@ class Plot:
 
         self.background=self.backgroundStack.GetStack().Last().Clone(self.name+'_background'); self.background.Sumw2()
         yields['Total Background']=self.background.Integral(0,self.nBins+1)
+        yields['EWK']=self.ewk.Integral(0,self.nBins+1)
+        yields['top']=self.top.Integral(0,self.nBins+1)
+        yields['other']=self.other.Integral(0,self.nBins+1)
         yields['Data']=self.data.Integral(0,self.nBins+1)
 
         return yields
@@ -226,7 +230,7 @@ class Plot:
         legend.AddEntry(self.data,"Data")
         legend.AddEntry(self.top,"t#bar{t} + Single-Top","f")
         legend.AddEntry(self.ewk,"V + jets","f")
-        legend.AddEntry(self.other,"VV","f")
+        legend.AddEntry(self.other,"VV + QCD","f")
         
         for signal in self.signals:
             legend.AddEntry(signal.h, signal.altName, "l")

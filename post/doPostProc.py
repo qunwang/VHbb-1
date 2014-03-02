@@ -18,7 +18,7 @@ gROOT.SetBatch(1)
 if len(argv)>1:
     inputDir=argv[1]
 else:
-    inputDir='/uscms_data/d1/jstupak/Vh/step4/2014_3_1'
+    inputDir='/eos/uscms/store/user/jstupak/Vh/step4/2014_3_1'
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -27,7 +27,7 @@ DEBUG=False
 doCutTable=False
 doLimitSetting=False
 
-doCuts=['mjj']
+doCuts=['bdt']
 #doCuts=['mjj','bdt','WLF','WHF','ttbar']
 
 #0=Z->mumu, 1=Z->ee, 2=W->munu, 3=W->enu
@@ -50,7 +50,7 @@ muLumi=19624
 ewkFracUnc=.2
 topFracUnc=.15
 otherFracUnc=.15
-lumiFracUnc=2.2
+lumiFracUnc=.022   #FIXME?
 
 signalMagFrac=1
 
@@ -69,10 +69,21 @@ if doCutTable:
                                     
 if __name__=='__main__':
 
-    plots=[
-        Plot(name='H_pT',distribution='H.pt',nBins=50,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=True,cuts='mjj',channel=2),
-        Plot(name='H_pT2',distribution='H.pt',nBins=50,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=True,cuts='mjj',channel=3),
-        ]
+    yields={}
+    plots=[]
+    for cuts in doCuts:
+        yields[cuts]={}
+        if doCutTable:
+            plots=[
+                Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=5000,cuts=cuts,channel=2),
+                Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=5000,cuts=cuts,channel=3),
+                ]
+        else:
+            for channel in doChannels:
+                plots+=[
+                    Plot(name='H_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,channel=channel),
+                    Plot(name='H_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,channel=channel),
+                    ]
 
     """
     yields={}
@@ -80,7 +91,7 @@ if __name__=='__main__':
     for cuts in doCuts:
         yields[cuts]={}
         if doCutTable:
-            plots+=[Plot(name='electron0_pt',distribution='elec_1_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=7000,xTitle='electron p_{T} [GeV]',yLog=True,cuts=cuts,channel=4),
+            plots+=[Plot(name='electron0_pt',distribution='elec_1_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=7000,xTitle='electron p_{T} [GeV]',yLog=True,cuts=cuts,channel='el'),
                     Plot(name='muon0_pt',distribution='muon_1_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=7000,xTitle='muon p_{T} [GeV]',yLog=True,cuts=cuts,channel='mu')
                     ]
 
@@ -136,30 +147,30 @@ if __name__=='__main__':
         except: pass
         plot.Draw()
 
-    """
-
-    #FIXME
     cWidth=15; nameWidth=30
     for channel in doChannels:
-        print ("CHANNEL:"+str(channel)).ljust(nameWidth+(2*cWidth+1)),"N_b"
+        print ("CHANNEL:"+str(channel)).ljust(nameWidth+(2*cWidth+1)) #,"N_b"
         print "".ljust(nameWidth),
         for cuts in doCuts: print cuts.ljust(cWidth),
         print
-        for sample in ['Data','W+light','W+c','W+b']:
+        for sample in ['Wlight','Wb','Wbb','EWK','top','other']:
             print sample.ljust(nameWidth),
-            for cuts in doCuts:
-                print str(int(round(yields[cuts][str(channel)][sample]))).ljust(cWidth),
-                #print str(yields[cuts][str(channel)][sample]).ljust(cWidth),
+            try:
+                for cuts in doCuts:
+                    print str(int(round(yields[cuts][str(channel)][sample]))).ljust(cWidth),
+                    #print str(yields[cuts][str(channel)][sample]).ljust(cWidth),
+            except: pass
             print
         for sample in samples:
-            if (str(channel)=='el' and 'SingleMu' in sample.name) or (str(channel)=='mu' and 'SingleEl' in sample.name): continue
-            #if sample.isData: continue
+            if sample.isData: continue
             print sample.name.ljust(nameWidth),
-            for cuts in doCuts:
-                print str(int(round(yields[cuts][str(channel)][sample.name]))).ljust(cWidth),
-                #print str(yields[cuts][str(channel)][sample.name]).ljust(cWidth),
+            try:
+                for cuts in doCuts:
+                    print str(int(round(yields[cuts][str(channel)][sample.name]))).ljust(cWidth),
+                    #print str(yields[cuts][str(channel)][sample.name]).ljust(cWidth),
+            except: pass
             print
-        for sample in ['Total Background']:
+        for sample in ['Total Background','Data']:
             print sample.ljust(nameWidth),
             for cuts in doCuts:
                 print str(int(round(yields[cuts][str(channel)][sample]))).ljust(cWidth),
@@ -170,4 +181,4 @@ if __name__=='__main__':
             print str(round(yields[cuts][str(channel)]['Total Background']/yields[cuts][str(channel)]['Data'],3)).ljust(cWidth),
         print 3*'\n'
         
-    """
+

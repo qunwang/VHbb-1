@@ -5,7 +5,7 @@ from ROOT import *
 class Sample:
 
     def __init__(self,name,sampleType=None,inputDir=None,fileIdentifier='',altName=None,channel=None):
-        self.name=name;  self.inputDir=inputDir; self.fileIdentifier=fileIdentifier; self.altName=altName; self.channel=None
+        self.name=name;  self.inputDir=inputDir; self.fileIdentifier=fileIdentifier; self.altName=altName; self.channel=channel
 
         self.setType(sampleType)
         
@@ -99,8 +99,9 @@ QCD=[QCD_BCtoE,QCD_Inclusive,QCD_MuEnriched]
 dataEl=Sample('DataEl','Data','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_DATA_split_varsBDTsAdded_v19','SingleElectron',channel='el')
 dataMu=Sample('DataMu','Data','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_DATA_split_varsBDTsAdded_v19','SingleMu',channel='mu')
 
+data=[dataEl,dataMu]
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#samplesForPlotting=[Wh_125p6_0P,Wh_125p6_0M]+diboson+[WJets,ZJets]+ttbar+singleTop+QCD
-samplesForPlotting=[Wh_125p6_0P,Wh_125p6_0M,WW,WZ,ZZ,dataEl,dataMu]
+samplesForPlotting=[Wh_125p6_0P,Wh_125p6_0M]+diboson+[WJets,ZJets]+ttbar+singleTop+QCD+data
 allSamples=samplesForPlotting+[Wh_125p6_0PH,Wh_125p6_0Mf05ph0]

@@ -2,10 +2,11 @@ import os,shutil,datetime
 
 #IO directories must be full paths
 
-#inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19'
-inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal'
-#outputDir='/uscmst1b_scratch/lpc1/3DayLifetime/jstupak'
-outputDir='/uscms_data/d1/jstupak/Vh/step4'
+inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal'   #nominal MC
+#inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19'   #all MC
+#inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_DATA_split_varsBDTsAdded_v19'   #data
+
+outputDir='/eos/uscms/store/user/jstupak/Vh/step4'
 
 #########################################################################################################################
 #Helper function for shutil.copytree

@@ -13,48 +13,64 @@ void step4::Loop(){
    inputTree->SetBranchStatus("*",0);
 
    //Specify branches to keep
+   inputTree->SetBranchStatus("aJet_eta",1);
+   inputTree->SetBranchStatus("aJet_id",1);
+   inputTree->SetBranchStatus("aJet_pt",1);
+   inputTree->SetBranchStatus("aJet_puJetIdL",1);
+   inputTree->SetBranchStatus("cschaloFlag",1);
+   inputTree->SetBranchStatus("ecalFlag",1);
+   inputTree->SetBranchStatus("eebadscFlag",1);
+   inputTree->SetBranchStatus("effectiveLumi",1);
+   inputTree->SetBranchStatus("EVENT.json",1);
+   inputTree->SetBranchStatus("EVENT.run",1);
    inputTree->SetBranchStatus("H",1);
+   inputTree->SetBranchStatus("hbhe",1);
+   inputTree->SetBranchStatus("hcallaserFlag",1);
+   inputTree->SetBranchStatus("hJet_csv",1);
+   inputTree->SetBranchStatus("hJet_csv_downBC",1);
+   inputTree->SetBranchStatus("hJet_csv_downL",1);
+   inputTree->SetBranchStatus("hJet_csv_nominal",1);
+   inputTree->SetBranchStatus("hJet_csv_upBC",1);
+   inputTree->SetBranchStatus("hJet_csv_upL",1);
+   inputTree->SetBranchStatus("hJet_e",1);
+   inputTree->SetBranchStatus("hJet_eta",1);
+   inputTree->SetBranchStatus("hJet_flavour",1);
+   inputTree->SetBranchStatus("hJet_id",1);
+   inputTree->SetBranchStatus("hJet_phi",1);
    inputTree->SetBranchStatus("hJet_pt",1);
    inputTree->SetBranchStatus("hJet_ptCorr",1);
-   inputTree->SetBranchStatus("hJet_eta",1);
-   inputTree->SetBranchStatus("hJet_phi",1);
-   inputTree->SetBranchStatus("hJet_e",1);
-   inputTree->SetBranchStatus("hJet_id",1);
    inputTree->SetBranchStatus("hJet_puJetIdL",1);
-   inputTree->SetBranchStatus("hJet_csv",1);
-   inputTree->SetBranchStatus("hJet_flavour",1);
-   inputTree->SetBranchStatus("vLepton_pt",1);
-   inputTree->SetBranchStatus("vLepton_eta",1);
-   inputTree->SetBranchStatus("vLepton_phi",1);
-   inputTree->SetBranchStatus("vLepton_mass",1);
-   inputTree->SetBranchStatus("vLepton_type",1);
-   inputTree->SetBranchStatus("vLepton_charge",1);
+   inputTree->SetBranchStatus("HVdPhi",1);
+   inputTree->SetBranchStatus("isBadHcalEvent",1);
+   inputTree->SetBranchStatus("lMETdPhi",1);
    inputTree->SetBranchStatus("METtype1corr",1);
-   inputTree->SetBranchStatus("V",1);
-   inputTree->SetBranchStatus("Vtype",1);
    inputTree->SetBranchStatus("naJets",1);
    inputTree->SetBranchStatus("nalep",1);
-   inputTree->SetBranchStatus("HVdPhi",1);
-   inputTree->SetBranchStatus("effectiveLumi",1);
-   inputTree->SetBranchStatus("weightTrig2012SingleEle",1);
-   inputTree->SetBranchStatus("weightTrig2012SingleMuon",1);
    inputTree->SetBranchStatus("PUweight",1);
-   inputTree->SetBranchStatus("PUweightP",1);
    inputTree->SetBranchStatus("PUweightM",1);
+   inputTree->SetBranchStatus("PUweightP",1);
+   inputTree->SetBranchStatus("trackingfailureFlag",1);
+   inputTree->SetBranchStatus("triggerFlags",1);
+   inputTree->SetBranchStatus("V",1);
+   inputTree->SetBranchStatus("vLepton_charge",1);
+   inputTree->SetBranchStatus("vLepton_eta",1);
+   inputTree->SetBranchStatus("vLepton_mass",1);
+   inputTree->SetBranchStatus("vLepton_phi",1);
+   inputTree->SetBranchStatus("vLepton_pt",1);
+   inputTree->SetBranchStatus("vLepton_type",1);
+   inputTree->SetBranchStatus("Vtype",1);
    inputTree->SetBranchStatus("weightSignalEWK",1);
    inputTree->SetBranchStatus("weightSignalQCD",1);
-   inputTree->SetBranchStatus("triggerFlags",1);
-   //inputTree->SetBranchStatus("",1);
-
+   inputTree->SetBranchStatus("weightTrig2012A");
+   inputTree->SetBranchStatus("weightTrig2012SingleEle",1);
+   inputTree->SetBranchStatus("weightTrig2012SingleMuon",1);
    inputTree->SetBranchStatus("x_costheta1",1);
    inputTree->SetBranchStatus("x_costheta2",1);
-   inputTree->SetBranchStatus("x_phi",1);
    inputTree->SetBranchStatus("x_costhetastar",1);
-   inputTree->SetBranchStatus("x_phi1",1);
    inputTree->SetBranchStatus("x_mVH",1);
+   inputTree->SetBranchStatus("x_phi",1);
+   inputTree->SetBranchStatus("x_phi1",1);
    inputTree->SetBranchStatus("x_rapidityVH",1);
-
-   inputTree->SetBranchStatus("lMETdPhi",1);
 
    outputFile->cd();
    TTree *outputTree = inputTree->CloneTree(0);
@@ -97,7 +113,7 @@ void step4::Loop(){
       higgs=bjet0+bjet1;
       wlep=chargelep+neutrino;
 
-      lMETdPhi=chargelep.DeltaPhi(met);
+      lMETdPhi=fabs(chargelep.DeltaPhi(met));
 
       //I assume you have the following four four-vectors:                                                                                                                                      
       //fs_f0 is the four-vector of the fermion particle                                                                                                                                        

@@ -28,12 +28,16 @@ doCutTable=False
 doLimitSetting=False
 
 doCuts=['bdt']
-#doCuts=['mjj','bdt','WLF','WHF','ttbar']
+#doCuts=['WLF','WHF','ttbar']
+#ocuts=['mjj','bdt','WLF','WHF','ttbar']
 
 #0=Z->mumu, 1=Z->ee, 2=W->munu, 3=W->enu
-doChannels=[2,3]
-#doChannels=[3]
-#doChannels=[4]
+doVtypes=[2,3]
+#doVtypes=[2]
+#doVtypes=[3]
+
+doBoosts=['low']
+#doBoosts=['low','med','high']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -59,7 +63,8 @@ treeName='tree'
 #---------------------------------------------------------------------------------------------------------------------------------------------
 
 if doLimitSetting:
-    doChannels=[3,4]
+    doVtypes=[2,3]
+    doBoosts=['low','med','high']
     doCutTable=False
     
 if doCutTable:
@@ -73,112 +78,78 @@ if __name__=='__main__':
     plots=[]
     for cuts in doCuts:
         yields[cuts]={}
-        if doCutTable:
-            plots=[
-                Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=5000,cuts=cuts,channel=2),
-                Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=5000,cuts=cuts,channel=3),
-                ]
-        else:
-            for channel in doChannels:
-                plots+=[
-                    Plot(name='H_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,channel=channel),
-                    Plot(name='H_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,channel=channel),
-                    ]
-
-    """
-    yields={}
-    plots=[]
-    for cuts in doCuts:
-        yields[cuts]={}
-        if doCutTable:
-            plots+=[Plot(name='electron0_pt',distribution='elec_1_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=7000,xTitle='electron p_{T} [GeV]',yLog=True,cuts=cuts,channel='el'),
-                    Plot(name='muon0_pt',distribution='muon_1_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=7000,xTitle='muon p_{T} [GeV]',yLog=True,cuts=cuts,channel='mu')
-                    ]
-
-        elif getWhfCorrections:
-            plots+=[Plot(name='muon0_pt',distribution='muon_1_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=7000,xTitle='muon p_{T} [GeV]',yLog=True,cuts=cuts,channel='mu')]
-
-        else:
-            plots+=[#Plot(name='electron0_pt',distribution='elec_1_pt_ChargedHiggsCalc',nBins=70,xMin=0,xMax=700,xTitle='electron p_{T} [GeV]',yLog=True,cuts=cuts,channel='el'),
-                    #Plot(name='electron0_eta',distribution='elec_1_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='electron #eta',yLog=False,cuts=cuts,channel='el'),
-                    #Plot(name='electron0_RelIso',distribution='elec_1_RelIso_ChargedHiggsCalc',nBins=30,xMin=0,xMax=0.15,xTitle='electron Rel. Isolation',yLog=True,cuts=cuts,channel='el'),
-
-                    #Plot(name='muon0_pt',distribution='muon_1_pt_ChargedHiggsCalc',nBins=70,xMin=6,xMax=706,xTitle='muon p_{T} [GeV]',yLog=True,cuts=cuts,channel='mu'),
-                    #Plot(name='muon0_eta',distribution='muon_1_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='muon #eta',yLog=False,cuts=cuts,channel='mu'),
-                    #Plot(name='muon0_RelIso',distribution='muon_1_RelIso_ChargedHiggsCalc',nBins=30,xMin=0,xMax=0.15,xTitle='muon Rel. Isolation',yLog=True,cuts=cuts,channel='mu')
-                    ]
-
-
-            for channel in doChannels:
-                plots+=[###Plot(name='BestJetJet2W_M',distribution='BestJetJet2W_M_LjetsTopoCalcNew',nBins=68,xMin=100,xMax=3500,xTitle='M(tb) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        ###Plot(name='Jet1Jet2W_M',distribution='Jet1Jet2W_M_LjetsTopoCalcNew',nBins=68,xMin=100,xMax=3500,xTitle='M(tb) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='corr_met',distribution='corr_met_ChargedHiggsCalc',nBins=70,xMin=0,xMax=700,xTitle='E_{T}^{miss} [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet0_pt',distribution='jet_0_pt_ChargedHiggsCalc',nBins=100,xMin=0,xMax=1000,xTitle='p_{T} (jet1) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet0_eta',distribution='jet_0_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet1)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet1_pt',distribution='jet_1_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet2) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet1_eta',distribution='jet_1_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet2)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet2_pt',distribution='jet_2_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet3) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet2_eta',distribution='jet_2_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet3)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet3_pt',distribution='jet_3_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet4) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet3_eta',distribution='jet_3_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet4)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet4_pt',distribution='jet_4_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet5) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet4_eta',distribution='jet_4_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet5)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet5_pt',distribution='jet_5_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet6) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet5_eta',distribution='jet_5_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet6)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet6_pt',distribution='jet_6_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet7) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet6_eta',distribution='jet_6_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet7)',yLog=False,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet7_pt',distribution='jet_7_pt_ChargedHiggsCalc',nBins=80,xMin=0,xMax=800,xTitle='p_{T} (jet8) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='PFjet7_eta',distribution='jet_7_eta_ChargedHiggsCalc',nBins=50,xMin=-2.5,xMax=2.5,xTitle='#eta (jet8)',yLog=False,cuts=cuts,channel=channel),
-                        
-                        ###Plot(name='TopMass_Best',distribution='BestTop_LjetsTopoCalcNew',nBins=100,xMin=0,xMax=1000,xTitle='M(best jet,W) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        ###Plot(name='TopPt_Best',distribution='BestTop_Pt_LjetsTopoCalcNew',nBins=150,xMin=0,xMax=1500,xTitle='p_{T}(best jet,W) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='Pt_Jet1Jet2',distribution='Jet1Jet2_Pt_LjetsTopoCalcNew',nBins=150,xMin=0,xMax=1500,xTitle='p_{T}(jet1,jet2) [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='HT',distribution='Ht_LjetsTopoCalcNew',nBins=125,xMin=0,xMax=2500,xTitle='H_{T} [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='ST',distribution='jet_0_pt_ChargedHiggsCalc+jet_1_pt_ChargedHiggsCalc+((elec_1_pt_ChargedHiggsCalc>0)*elec_1_pt_ChargedHiggsCalc)+((muon_1_pt_ChargedHiggsCalc>0)*muon_1_pt_ChargedHiggsCalc)+corr_met_ChargedHiggsCalc',nBins=150,xMin=0,xMax=3000,xTitle='S_{T} [GeV]',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='nPV',distribution='nPV_ChargedHiggsCalc',nBins=50,xMin=0,xMax=50,xTitle='# Vertices',yLog=True,cuts=cuts,channel=channel),
-                        #Plot(name='Nj',distribution='nSelJets_CommonCalc',nBins=7,xMin=1.5,xMax=8.5,xTitle='N_{jets}',yLog=True,cuts=cuts,channel=channel)
+        for Vtype in doVtypes:
+            yields[cuts][Vtype]={}
+            for boost in doBoosts:
+                yields[cuts][Vtype][boost]={}
+        
+                if doCutTable:
+                    plots+=[Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=500000,cuts=cuts,Vtype=Vtype,boost=boost)]
+                    
+                else:
+                    plots+=[
+                        Plot(name='h_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_dRjj',distribution='H.dR',nBins=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet2_ptCorr',distribution='hJet_ptCorr[1]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet1_csv',distribution='hJet_csv[0]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet2_csv',distribution='hJet_csv[1]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='V_pT',distribution='V.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(V) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='METtype1corr_et',distribution='METtype1corr.et',nBins=25,xMin=0,xMax=500,xTitle='E_{T}^{miss} [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='METtype1corr_sig',distribution='METtype1corr.sig',nBins=25,xMin=0,xMax=10,xTitle='E_{T}^{miss} significance',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='naJets',distribution='naJets',nBins=20,xMin=0,xMax=30,xTitle='N_{aj}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='nalep',distribution='nalep',nBins=20,xMin=0,xMax=20,xTitle='N_{al}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='HVdPhi',distribution='HVdPhi',nBins=20,xMin=0,xMax=3.3,xTitle='#Delta#phi(V,H)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='lMETdPhi',distribution='lMETdPhi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#Delta#phi(E_{T}^{miss},l)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_costheta1',distribution='x_costheta1',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{1})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_costheta2',distribution='x_costheta2',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_phi',distribution='x_phi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_costhetastar',distribution='x_costhetastar',nBins=20,xMin=0,xMax=1,xTitle='Cos(#theta*)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_phi1',distribution='x_phi1',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi_{1}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_mVH',distribution='x_mVH',nBins=25,xMin=0,xMax=1000,xTitle='m(VH)[GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_rapidityVH',distribution='x_rapidityVH',nBins=20,xMin=-3,xMax=3,xTitle='y(VH)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         ]
-
-    """
     
     for plot in plots:
         y=plot.Prepare()
-        try: yields[plot.cuts][str(plot.channel)]=y
+        try: yields[plot.cuts][plot.Vtype][plot.boost]=y
         except: pass
         plot.Draw()
 
     cWidth=15; nameWidth=30
-    for channel in doChannels:
-        print ("CHANNEL:"+str(channel)).ljust(nameWidth+(2*cWidth+1)) #,"N_b"
-        print "".ljust(nameWidth),
-        for cuts in doCuts: print cuts.ljust(cWidth),
-        print
-        for sample in ['Wlight','Wb','Wbb','EWK','top','other']:
-            print sample.ljust(nameWidth),
-            try:
-                for cuts in doCuts:
-                    print str(int(round(yields[cuts][str(channel)][sample]))).ljust(cWidth),
-                    #print str(yields[cuts][str(channel)][sample]).ljust(cWidth),
-            except: pass
-            print
-        for sample in samples:
-            if sample.isData: continue
-            print sample.name.ljust(nameWidth),
-            try:
-                for cuts in doCuts:
-                    print str(int(round(yields[cuts][str(channel)][sample.name]))).ljust(cWidth),
-                    #print str(yields[cuts][str(channel)][sample.name]).ljust(cWidth),
-            except: pass
-            print
-        for sample in ['Total Background','Data']:
-            print sample.ljust(nameWidth),
-            for cuts in doCuts:
-                print str(int(round(yields[cuts][str(channel)][sample]))).ljust(cWidth),
-                #print str(yields[cuts][str(channel)][sample]).ljust(cWidth),
-            print
-        print 'Background/Data'.ljust(nameWidth),
+    for Vtype in doVtypes:
         for cuts in doCuts:
-            print str(round(yields[cuts][str(channel)]['Total Background']/yields[cuts][str(channel)]['Data'],3)).ljust(cWidth),
-        print 3*'\n'
-        
+            print ("VTYPE: "+str(Vtype)).ljust(nameWidth+(2*cWidth+1))
+            print ("CUTS: "+cuts).ljust(nameWidth+(2*cWidth+1))
+            print "".ljust(nameWidth),
+            for boost in doBoosts: print boost.ljust(cWidth),
+            print
+            for sample in ['Wlight','Wb','Wbb','EWK','top','other']:
+                print sample.ljust(nameWidth),
+                try:
+                    for boost in doBoosts:
+                        print str(int(round(yields[cuts][Vtype][boost][sample]))).ljust(cWidth),
+                except: pass
+                print
+            for sample in samples:
+                #if sample.isData: continue
+                print sample.name.ljust(nameWidth),
+                try:
+                    for boost in doBoosts:
+                        print str(int(round(yields[cuts][Vtype][boost][sample.name]))).ljust(cWidth),
+                except: pass
+                print
+            for sample in ['Total Background','Data']:
+                print sample.ljust(nameWidth),
+                for boost in doBoosts:
+                    print str(int(round(yields[cuts][Vtype][boost][sample]))).ljust(cWidth),
+                print
+            print 'Background/Data'.ljust(nameWidth),
+            for boost in doBoosts:
+                try: print str(round(yields[cuts][Vtype][boost]['Total Background']/yields[cuts][Vtype][boost]['Data'],3)).ljust(cWidth),
+                except: pass
+            print 3*'\n'
+
 

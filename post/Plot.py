@@ -19,9 +19,9 @@ TH1.SetDefaultSumw2(True)
 
 class Plot:
 
-    def __init__(self,name,distribution,bins=None,nBins=100,xMin=0,xMax=100,xTitle='',yLog=True,cuts="1",channel=3):
-        self.name=name; self.distribution=distribution; self.bins=bins; self.nBins=nBins; self.xMin=xMin; self.xMax=xMax; self.xTitle=xTitle; self.yLog=yLog; self.cuts=cuts; self.channel=channel
-
+    def __init__(self,name,distribution,bins=None,nBins=100,xMin=0,xMax=100,xTitle='',yLog=True,cuts="bdt",Vtype=3,boost='low'):
+        self.name=name; self.distribution=distribution; self.bins=bins; self.nBins=nBins; self.xMin=xMin; self.xMax=xMax; self.xTitle=xTitle; self.yLog=yLog; self.cuts=cuts; self.Vtype=Vtype; self.boost=boost
+        
         if self.bins:
             self.nBins=len(self.bins)-1
             self.xMin=self.bins[0]
@@ -33,12 +33,12 @@ class Plot:
         self.bins=array('f',self.bins)
 
         #make name unique
-        self.name+='_'+self.cuts+'_Vtype'+str(self.channel)
+        self.name+='_'+self.cuts+'_Vtype'+str(self.Vtype)+'_'+self.boost+'Boost'
         
-        if (self.channel==0 or self.channel==2):
+        if (self.Vtype==0 or self.Vtype==2):
             self.lumi=muLumi
             self.trigWeight=trigWeightMu
-        elif (self.channel==1 or self.channel==3):
+        elif (self.Vtype==1 or self.Vtype==3):
             self.lumi=elLumi
             self.trigWeight=trigWeightEl
 
@@ -52,9 +52,9 @@ class Plot:
             print sample.name
             
             #skip electron (muon) data for muon (electron) channel
-            if self.channel==0 or self.channel==2:
+            if self.Vtype==0 or self.Vtype==2:
                 if sample.channel=='el': continue
-            if self.channel==1 or self.channel==3:
+            if self.Vtype==1 or self.Vtype==3:
                 if sample.channel=='mu': continue
 
             sample.setInputList(inputDir)
@@ -64,7 +64,10 @@ class Plot:
             sample.h=TH1F(hName,";"+self.xTitle,self.nBins,self.bins)
             sample.h.Sumw2()
 
-            theCuts=cuts[self.cuts]+' && Vtype=='+str(self.channel)
+            theCuts=cuts[self.cuts]+' && Vtype=='+str(self.Vtype)
+            if self.boost=='low': theCuts+=' && 100<V.pt && V.pt<130'
+            if self.boost=='med': theCuts+=' && 130<V.pt && V.pt<180'
+            if self.boost=='high': theCuts+=' && 180<V.pt'
 
             weight='1'
             if sample.isMC:
@@ -82,10 +85,9 @@ class Plot:
                 self.Wb=sample.h.Clone(hName+'_b'); self.Wb.Sumw2()
                 self.Wbb=sample.h.Clone(hName+'_bb'); self.Wbb.Sumw2()
 
-                #FIXME - shouldn't have hardcoded 0
-                sample.chain.Draw(self.distribution+'>>'+hName+'_light',weight+' * '+str(scaleFactors[0]['Wlight'])+' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==0)','GOFF')
-                sample.chain.Draw(self.distribution+'>>'+hName+'_b'    ,weight+' * '+str(scaleFactors[0]['Wb'])    +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==1)','GOFF')
-                sample.chain.Draw(self.distribution+'>>'+hName+'_bb'   ,weight+' * '+str(scaleFactors[0]['Wbb'])   +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==2)','GOFF')
+                sample.chain.Draw(self.distribution+'>>'+hName+'_light',weight+' * '+str(scaleFactors[self.boost]['Wlight'])+' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==0)','GOFF')
+                sample.chain.Draw(self.distribution+'>>'+hName+'_b'    ,weight+' * '+str(scaleFactors[self.boost]['Wb'])    +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==1)','GOFF')
+                sample.chain.Draw(self.distribution+'>>'+hName+'_bb'   ,weight+' * '+str(scaleFactors[self.boost]['Wbb'])   +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==2)','GOFF')
 
                 sample.h.Add(self.Wlight)
                 sample.h.Add(self.Wb)
@@ -100,8 +102,7 @@ class Plot:
                 yields['Wbb']=self.Wbb.Integral(0,self.nBins+1)
                                                                 
             else:
-                #FIXME - shouldn't have hardcoded 0
-                if sample.type=='ttbar': scaleFactor=str(scaleFactors[0]['ttbar'])
+                if sample.type=='ttbar': scaleFactor=str(scaleFactors[self.boost]['ttbar'])
                 else: scaleFactor='1'
 
                 sample.chain.Draw(self.distribution+">>"+hName,weight+' * '+scaleFactor+' * ('+theCuts+')','GOFF')
@@ -119,9 +120,9 @@ class Plot:
         self.data=TH1F(self.name+'__DATA',';'+self.xTitle,self.nBins,self.bins);
 
         for sample in samples:
-            if self.channel==0 or self.channel==2:
+            if self.Vtype==0 or self.Vtype==2:
                 if sample.channel=='el': continue
-            if self.channel==1 or self.channel==3:
+            if self.Vtype==1 or self.Vtype==3:
                 if sample.channel=='mu': continue
             
             if sample.isSignal:
@@ -250,9 +251,9 @@ class Plot:
         channelTex.SetNDC()
         channelTex.SetTextSize(0.08)
         channelTex.SetTextAlign(31)
-        if self.channel==0: text='Z #rightarrow #mu#mu'
-        elif self.channel==1: text='Z #rightarrow ee'
-        elif self.channel==2: text='W #rightarrow #mu#nu'
+        if self.Vtype==0: text='Z #rightarrow #mu#mu'
+        elif self.Vtype==1: text='Z #rightarrow ee'
+        elif self.Vtype==2: text='W #rightarrow #mu#nu'
         else: text='W #rightarrow e#nu'
         channelTex.DrawLatex(0.5, 0.83, text);
 

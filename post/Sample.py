@@ -91,7 +91,7 @@ singleTop_tW=Sample('singleTop_tW','singleTop','nominal/SingleTop_tW_lumiWeighte
 singleTop=[singleTop_sChannel,singleTop_tChannel,singleTop_tW]
 
 QCD_BCtoE=Sample('QCD_BCtoE','QCD','nominal/QCD_BCtoE_80toInf_lumiWeighted',channel='el')
-QCD_Inclusive=Sample('QCD_Inclusive','QCD','nominal/QCD_Inclusive_50toInf_lumiWeighted',channel='el')
+QCD_Inclusive=Sample('QCD_Inclusive','QCD','nominal/QCD_Inclusive_50toInf_lumiWeighted',channel='el')   #FIXME - Is this correct?
 QCD_MuEnriched=Sample('QCD_MuEnriched','QCD','nominal/QCD_MuEnrichedPt5_80toInf_lumiWeighted',channel='mu')
 
 QCD=[QCD_BCtoE,QCD_Inclusive,QCD_MuEnriched]

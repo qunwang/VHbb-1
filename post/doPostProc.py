@@ -84,12 +84,12 @@ if __name__=='__main__':
                 yields[cuts][Vtype][boost]={}
         
                 if doCutTable:
-                    plots+=[Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=500000,cuts=cuts,Vtype=Vtype,boost=boost)]
+                    plots+=[Plot(name='dummy',distribution='H.ptCorr',nBins=1,xMin=-9E9,xMax=9E9,cuts=cuts,Vtype=Vtype,boost=boost)]
                     
                 else:
                     plots+=[
-                        Plot(name='h_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_pT',distribution='H.ptCorr',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_mass',distribution='H.massCorr',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         Plot(name='h_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         Plot(name='h_dRjj',distribution='H.dR',nBins=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),

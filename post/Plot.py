@@ -9,8 +9,10 @@ from scaleFactors import *
 from array import array
 
 PUWeight='PUweight'
-trigWeightEl='weightTrig2012SingleEle'
-trigWeightMu='weightTrig2012SingleMuon'
+#trigWeightEl='weightTrig2012SingleEle'
+#trigWeightMu='weightTrig2012SingleMuon'
+trigWeightEl='weightTrig2012A'
+trigWeightMu='weightTrig2012A'
 
 if not os.path.isdir(outputDir): os.system("mkdir -p "+outputDir)
 output=TFile(outputDir+'/plots.root',"RECREATE")

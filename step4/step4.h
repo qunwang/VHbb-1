@@ -59,6 +59,7 @@ public :
    Float_t x_phi;
    Float_t x_costhetastar;
    Float_t x_phi1;
+   Float_t x_phi2;
    Float_t x_mVH;
    Float_t x_rapidityVH;
    
@@ -427,6 +428,7 @@ public :
    TBranch *b_x_phi;
    TBranch *b_x_costhetastar;
    TBranch *b_x_phi1;
+   TBranch *b_x_phi2;
    TBranch *b_x_mVH;
    TBranch *b_x_rapidityVH;
    
@@ -814,6 +816,7 @@ void step4::Init(TTree *tree)
    b_x_phi=inputTree->Branch("x_phi",&x_phi,"x_phi/F");
    b_x_costhetastar=inputTree->Branch("x_costhetastar",&x_costhetastar,"x_costhetastar/F");
    b_x_phi1=inputTree->Branch("x_phi1",&x_phi1,"x_phi1/F");
+   b_x_phi2=inputTree->Branch("x_phi2",&x_phi2,"x_phi2/F");
    b_x_mVH=inputTree->Branch("x_mVH",&x_mVH,"x_mVH/F");
    b_x_rapidityVH=inputTree->Branch("x_rapidityVH",&x_rapidityVH,"x_rapidityVH/F");
    
@@ -1159,6 +1162,6 @@ Int_t step4::Cut(Long64_t entry)
 }
 
 TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met,TString lep_type, Int_t diffMode=0);//diffMode: different neutrino vz 
-void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector thep4M11, TLorentzVector thep4M12, TLorentzVector thep4Z2, TLorentzVector thep4M21, TLorentzVector thep4M22, double& costheta1, double& costheta2, double& Phi, double& costhetastar, double& Phi1);
+void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector thep4M11, TLorentzVector thep4M12, TLorentzVector thep4Z2, TLorentzVector thep4M21, TLorentzVector thep4M22, double& costheta1, double& costheta2, double& Phi, double& costhetastar, double& Phi1, double& Phi2);
 
 #endif // #ifdef step4_cxx

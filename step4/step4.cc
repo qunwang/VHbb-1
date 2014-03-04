@@ -70,6 +70,7 @@ void step4::Loop(){
    inputTree->SetBranchStatus("x_mVH",1);
    inputTree->SetBranchStatus("x_phi",1);
    inputTree->SetBranchStatus("x_phi1",1);
+   inputTree->SetBranchStatus("x_phi2",1);
    inputTree->SetBranchStatus("x_rapidityVH",1);
 
    outputFile->cd();
@@ -140,16 +141,18 @@ void step4::Loop(){
       TLorentzVector p4_Hbb = fs_b0 + fs_b1; //Four-vector of H                                                                                                                                 
       TLorentzVector p4_VH = p4_Vff + p4_Hbb; //Four-vector of off-shell V that decays to VH                                                                                                    
 
-      Double_t a_costheta1, a_costheta2, a_costhetastar, a_Phi, a_Phi1;
+      Double_t a_costheta1, a_costheta2, a_costhetastar, a_Phi, a_Phi1, a_Phi2;
       computeAngles( p4_VH, p4_Vff, fs_f0, fs_f1, p4_Hbb, fs_b0, fs_b1,
-		     a_costheta1, a_costheta2, a_Phi, a_costhetastar, a_Phi1);
-      //remap to convention of arXiv:1309.4819                                                                                                                                                  
+		     a_costheta1, a_costheta2, a_Phi, a_costhetastar, a_Phi1, a_Phi2);
+
+      //remap to convention of arXiv:1309.4819
       x_costheta1 = (float) a_costheta1;
       x_costheta2 = (float) a_costhetastar;
       x_phi = (float) a_Phi1;
       x_costhetastar = TMath::Abs( (float) a_costheta2);
       x_phi1 = (float) a_Phi;
       //x_phi2 = TMath::Pi() - x_phi1 - x_phi;
+      x_phi2 = (float) a_Phi2;
       x_mVH = (float) p4_VH.M();
       x_rapidityVH = (float) p4_VH.Rapidity();
 
@@ -205,7 +208,7 @@ TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met, TString
 //////////////////////////////////
 //// P A P E R 4 - V E C T O R D E F I N I T I O N O F P H I A N D P H I 1
 //////////////////////////////////
-void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector thep4M11, TLorentzVector thep4M12, TLorentzVector thep4Z2, TLorentzVector thep4M21, TLorentzVector thep4M22, double& costheta1, double& costheta2, double& Phi, double& costhetastar, double& Phi1){
+void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector thep4M11, TLorentzVector thep4M12, TLorentzVector thep4Z2, TLorentzVector thep4M21, TLorentzVector thep4M22, double& costheta1, double& costheta2, double& Phi, double& costhetastar, double& Phi1, double& Phi2){
 
   ///////////////////////////////////////////////
   // check for z1/z2 convention, redefine all 4 vectors with convention
@@ -292,5 +295,12 @@ void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector
   double tmpSgnPhi1 = p4Z1_BX.Vect().Dot( normal1_BX.Cross( normalSC_BX) );
   double sgnPhi1 = tmpSgnPhi1/fabs(tmpSgnPhi1);
   Phi1 = sgnPhi1 * acos( normal1_BX.Dot( normalSC_BX) );
+
+  //// Phi2
+  TLorentzVector p4Z2_BX = p4M21_BX + p4M22_BX;
+  double tmpSgnPhi2 = p4Z2_BX.Vect().Dot( normal2_BX.Cross( normalSC_BX) );
+  double sgnPhi2 = tmpSgnPhi2/fabs(tmpSgnPhi2);
+  Phi2 = sgnPhi2 * acos( normal2_BX.Dot( normalSC_BX) );
+
 
 }

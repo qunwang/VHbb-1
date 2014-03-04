@@ -1153,7 +1153,7 @@ Int_t step4::Cut(Long64_t entry)
 // returns  1 if entry is accepted.
 // returns 0 otherwise.
 
-  if( (Vtype<2 || Vtype>3) || V.pt<100 || hJet_ptCorr[1]<30 || H.ptCorr<100 || METtype1corr_et<45 ) return 0;   //Valid for W->lnu only!
+  if( (Vtype<2 || Vtype>3) || V_pt<100 || hJet_ptCorr[1]<30 || H_ptCorr<100 || METtype1corr_et<45 ) return 0;   //Valid for W->lnu only!
   //if(Vtype>3) return 0;  //Only keep Z->ell ell and W->ell nu events - 0=Zmumu, 1=Zee, 2=Wmunu, 3=Wenu
     
   return 1;

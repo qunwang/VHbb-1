@@ -17,6 +17,9 @@ void step4::Loop(){
    inputTree->SetBranchStatus("aJet_id",1);
    inputTree->SetBranchStatus("aJet_pt",1);
    inputTree->SetBranchStatus("aJet_puJetIdL",1);
+   inputTree->SetBranchStatus("aLepton_pt",1);
+   inputTree->SetBranchStatus("aLepton_eta",1);
+   inputTree->SetBranchStatus("aLepton_pfCorrIso",1);
    inputTree->SetBranchStatus("cschaloFlag",1);
    inputTree->SetBranchStatus("ecalFlag",1);
    inputTree->SetBranchStatus("eebadscFlag",1);

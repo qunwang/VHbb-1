@@ -72,6 +72,9 @@ void step4::Loop(){
    inputTree->SetBranchStatus("weightTrig2012A");
    inputTree->SetBranchStatus("weightTrig2012SingleEle",1);
    inputTree->SetBranchStatus("weightTrig2012SingleMuon",1);
+   inputTree->SetBranchStatus("weightWpt_WJets",1);
+   inputTree->SetBranchStatus("weightWpt_TTbar",1);
+   inputTree->SetBranchStatus("weightEleTrigger",1);
    inputTree->SetBranchStatus("x_costheta1",1);
    inputTree->SetBranchStatus("x_costheta2",1);
    inputTree->SetBranchStatus("x_costhetastar",1);
@@ -164,11 +167,63 @@ void step4::Loop(){
       x_mVH = (float) p4_VH.M();
       x_rapidityVH = (float) p4_VH.Rapidity();
 
+
+      //W pT Reweighting
+      double wptslope = -1.057e-03;
+      double ttwptslope = -1.087e-03;
+      weightWpt_WJets = 1.0+wptslope*(V_pt-170.0);
+      weightWpt_TTbar = 1.0+ttwptslope*(V_pt-170.0);
+      
+
+      //Electron Trigger Correction
+      if(Vtype==3) {
+	weightEleTrigger = (efficiencyFromPtEta(vLepton_pt[0],vLepton_eta[0],treeEleTrigger)).first;
+      }
+      else {
+	weightEleTrigger = 1.0;
+      }
       outputTree->Fill();
    }
    
    outputTree->Write();
 
+}
+
+
+std::pair<float,float> step4::efficiencyFromPtEta(float pt1, float eta1, TTree *t)
+{
+  float s1 = 1.,err=1.;
+  std::pair<float,float> r(s1,err);
+  if(!t) return r;
+  float ptMin,ptMax,etaMin,etaMax,scale,error;
+  int count = 0;
+  t->SetBranchAddress("ptMin",&ptMin);
+  t->SetBranchAddress("ptMax",&ptMax);
+  t->SetBranchAddress("etaMin",&etaMin);
+  t->SetBranchAddress("etaMax",&etaMax);
+  t->SetBranchAddress("scale",&scale);
+  t->SetBranchAddress("error",&error);
+  float lastPtBin = 200;
+  for(int jentry = 0; jentry < t->GetEntries(); jentry++)
+    {
+      t->GetEntry(jentry);
+      if(ptMax==lastPtBin) ptMax=1e99;
+      if((pt1 > ptMin) && (pt1 < ptMax) && (eta1 > etaMin) && (eta1 < etaMax))
+        {
+          s1 = scale;
+          err=error;
+          count++;
+        }
+    }
+
+  if(count == 0)
+    {
+      return r;
+    }
+  
+  r.first=s1;
+  r.second = err;
+  return (r);
 }
 
 

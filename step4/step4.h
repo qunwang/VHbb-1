@@ -53,6 +53,10 @@ public :
    TFile          *inputFile, *outputFile;
    Int_t           fCurrent; //!current Tree number in a TChain
 
+   //File and tree for electron trigger correction (weightEleTrigger)
+   TTree          *treeEleTrigger;
+   TFile          *fileEleTrigger;
+
 //JS3 - adding angular variables
    Float_t x_costheta1;
    Float_t x_costheta2;
@@ -65,6 +69,11 @@ public :
    
    Float_t lMETdPhi;
    
+   Float_t weightWpt_WJets;
+   Float_t weightWpt_TTbar;
+
+   Float_t weightEleTrigger;
+
    // Declaration of leaf types
    Float_t         lheV_pt;
    Float_t         lheHT;
@@ -434,6 +443,11 @@ public :
    
    TBranch *b_lMETdPhi;
 
+   TBranch *b_weightWpt_WJets;
+   TBranch *b_weightWpt_TTbar;
+
+   TBranch *b_weightEleTrigger;
+
    // List of branches
    TBranch        *b_lheV_pt;   //!
    TBranch        *b_lheHT;   //!
@@ -752,12 +766,15 @@ public :
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+   
+   std::pair<float,float> efficiencyFromPtEta(float pt1, float eta1, TTree *t);
+
 };
 
 #endif
 
 #ifdef step4_cxx
-step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inputFile(0), outputFile(0)
+step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inputFile(0), outputFile(0), treeEleTrigger(0), fileEleTrigger(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -765,7 +782,16 @@ step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inpu
   inputTree=(TTree*)inputFile->Get("tree");
   
   outputFile=new TFile(outputFileName,"RECREATE");
-  
+
+  //Stuff for electron trigger efficiency
+  fileEleTrigger=new TFile("/eos/uscms/store/user/sethzenz/fromdcache/EleRecoId.Presel.2012ABCD.root","READ");
+  if(fileEleTrigger->IsZombie()){
+    cout << "Input file for electron trigger correction cannot be opened" << endl;
+    delete fileEleTrigger;
+    fileEleTrigger=0;
+  }
+  treeEleTrigger=(TTree*)fileEleTrigger->Get("tree");
+
   Init(inputTree);
 }
 
@@ -821,6 +847,11 @@ void step4::Init(TTree *tree)
    b_x_rapidityVH=inputTree->Branch("x_rapidityVH",&x_rapidityVH,"x_rapidityVH/F");
    
    b_lMETdPhi=inputTree->Branch("lMETdPhi",&lMETdPhi,"lMETdPhi/F");
+
+   b_weightWpt_WJets=inputTree->Branch("weightWpt_WJets",&weightWpt_WJets,"weightWpt_WJets/F");
+   b_weightWpt_TTbar=inputTree->Branch("weightWpt_TTbar",&weightWpt_TTbar,"weightWpt_TTbar/F");
+
+   b_weightEleTrigger=inputTree->Branch("weightEleTrigger",&weightEleTrigger,"weightEleTrigger/F");
 
    inputTree->SetBranchAddress("lheV_pt", &lheV_pt, &b_lheV_pt);
    inputTree->SetBranchAddress("lheHT", &lheHT, &b_lheHT);

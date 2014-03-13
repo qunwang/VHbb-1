@@ -8,9 +8,7 @@ scramv1 project CMSSW CMSSW_5_3_6
 cd CMSSW_5_3_6/src
 eval `scramv1 runtime -sh`
 
-cp $macroDir/*.C .
-cp $macroDir/*.cc .
-cp $macroDir/*.h .
+cp $macroDir/* .
 
 for file in `ls $inputDir`; do
     if [[ $file == *root ]]; then

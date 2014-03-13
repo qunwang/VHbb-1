@@ -12,6 +12,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "METzCalculator.h"
 
@@ -784,7 +785,10 @@ step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inpu
   outputFile=new TFile(outputFileName,"RECREATE");
 
   //Stuff for electron trigger efficiency
-  fileEleTrigger=new TFile("/eos/uscms/store/user/sethzenz/fromdcache/EleRecoId.Presel.2012ABCD.root","READ");
+  //fileEleTrigger=new TFile("/eos/uscms/store/user/sethzenz/fromdcache/EleRecoId.Presel.2012ABCD.root","READ");
+  TString fName=TString(getenv("CMSSW_BASE"));
+  fName+=TString("/src/VHbb/step4/EleRecoId.Presel.2012ABCD.root");
+  fileEleTrigger=new TFile(fName.Data(),"READ");
   if(fileEleTrigger->IsZombie()){
     cout << "Input file for electron trigger correction cannot be opened" << endl;
     delete fileEleTrigger;

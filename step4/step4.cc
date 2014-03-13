@@ -194,7 +194,7 @@ std::pair<float,float> step4::efficiencyFromPtEta(float pt1, float eta1, TTree *
 {
   float s1 = 1.,err=1.;
   std::pair<float,float> r(s1,err);
-  if(!t) return r;
+  if(!t) return std::pair<float,float>(-99,-99);
   float ptMin,ptMax,etaMin,etaMax,scale,error;
   int count = 0;
   t->SetBranchAddress("ptMin",&ptMin);

@@ -5,6 +5,7 @@ samples=samplesForPlotting
 from cuts import *
 from doPostProc import *
 from scaleFactors import *
+import os,sys
 
 from array import array
 
@@ -66,8 +67,8 @@ class Plot:
             sample.h=TH1F(hName,";"+self.xTitle,self.nBins,self.bins)
             sample.h.Sumw2()
 
-            theCuts=cuts[self.cuts]+' && Vtype=='+str(self.Vtype)
-            if self.boost=='low': theCuts+=' && 100<V.pt && V.pt<130'
+            theCuts=cuts[self.Vtype][self.cuts]+' && Vtype=='+str(self.Vtype)
+            if self.boost=='low': theCuts+=' && 100<V.pt && V.pt<130 && vLepton_pfCorrIso[0] < 0.075'
             if self.boost=='med': theCuts+=' && 130<V.pt && V.pt<180'
             if self.boost=='high': theCuts+=' && 180<V.pt'
 
@@ -75,10 +76,14 @@ class Plot:
             if sample.isMC:
                 weight+=' * '+PUWeight 
                 weight+=' * '+self.trigWeight
+                if 'WJets' in sample.name: weight+=' * weightWpt_WJets'
+                if 'TTbar' in sample.name: weight+=' * weightWpt_TTbar'
+                weight+=' * weightEleTrigger'
 
                 if sample.isSignal:
-                    weight+=' * weightSignalEWK'
-                    weight+=' * weightSignalQCD'
+                    #weight+=' * weightSignalEWK'
+                    #weight+=' * weightSignalQCD'
+                    weight+=' * 1'
 
                 weight+=' / effectiveLumi'
 
@@ -107,7 +112,22 @@ class Plot:
                 if sample.type=='ttbar': scaleFactor=str(scaleFactors[self.boost]['ttbar'])
                 else: scaleFactor='1'
 
-                sample.chain.Draw(self.distribution+">>"+hName,weight+' * '+scaleFactor+' * ('+theCuts+')','GOFF')
+                print '=============================='
+                print weight+' * '+scaleFactor
+                print '=============================='
+                print theCuts
+                print '=============================='
+                val = sample.chain.Draw(self.distribution+">>"+hName,weight+' * '+scaleFactor+' * ('+theCuts+')','GOFF')
+                
+                stdout_old = sys.stdout
+                logFile = open(outputDir + '/log.txt','a')
+                sys.stdout = logFile
+                print sample.name, self.Vtype, self.cuts, self.boost, sample.h.Integral()
+                sys.stdout = stdout_old
+                logFile.close()
+                print sample.h.Integral()
+            
+            
 
             if sample.isMC: sample.h.Scale(self.lumi)
             yields[sample.name]=sample.h.Integral(0,self.nBins+1) #for cutflow table
@@ -236,7 +256,7 @@ class Plot:
         legend.AddEntry(self.other,"VV + QCD","f")
         
         for signal in self.signals:
-            legend.AddEntry(signal.h, signal.altName, "l")
+            legend.AddEntry(signal.h, signal.altName + " x" + str(signalMagFrac), "l")
 
         legend.AddEntry(self.uncBand , "Uncertainty" , "f")
         legend.Draw("SAME")

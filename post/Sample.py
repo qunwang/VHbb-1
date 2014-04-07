@@ -72,6 +72,8 @@ WZ=Sample('WZ','VZ','nominal/WZ_lumiWeighted')
 ZZ=Sample('ZZ','VZ','nominal/ZZ_lumiWeighted')
 WW=Sample('WW','VV','nominal/WW_lumiWeighted')
 
+#WZ=Sample('WZ','VZ','nominal/WZ_new_lumiWeighted')
+
 diboson=[WZ,ZZ,WW]
 
 WJets=Sample('WJets','WJets','nominal/WJets_boostedMG_lumiWeighted')
@@ -105,5 +107,7 @@ data=[dataEl,dataMu]
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 samplesForPlotting=[Wh_125p6_0P,Wh_125p6_0M,Wh_125p6_0Mf05ph0]+diboson+[WJets,ZJets]+ttbar+singleTop+QCD+data
+#samplesForPlotting=[Wh_125p6_0P,Wh_125p6_0M,Wh_125p6_0Mf05ph0]+diboson+[WJets,ZJets]+ttbar+singleTop+data
+#samplesForPlotting=[WZ]+data
 #samplesForPlotting=data
 allSamples=samplesForPlotting+[Wh_125p6_0PH,Wh_125p6_0Mf05ph0]

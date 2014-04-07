@@ -59,7 +59,7 @@ class Plot:
                 if sample.channel=='el': continue
             if self.Vtype==1 or self.Vtype==3:
                 if sample.channel=='mu': continue
-
+	     
             sample.setInputList(inputDir)
             sample.makeTChain(treeName)
                         
@@ -71,13 +71,17 @@ class Plot:
             if self.boost=='low': theCuts+=' && 100<V.pt && V.pt<130 && vLepton_pfCorrIso[0] < 0.075'
             if self.boost=='med': theCuts+=' && 130<V.pt && V.pt<180'
             if self.boost=='high': theCuts+=' && 180<V.pt'
+            
 
             weight='1'
             if sample.isMC:
+                theCuts = theCuts.replace('((EVENT.run<193834 && (triggerFlags[22]>0 || triggerFlags[23]>0)) || (EVENT.run>=193834 && (triggerFlags[14]>0 ||triggerFlags[21]>0)))','1')
+                theCuts = theCuts.replace('(triggerFlags[44]>0)','1')
+                theCuts = theCuts.replace('(!(207883<=EVENT.run && EVENT.run<=208307))','1')
                 weight+=' * '+PUWeight 
                 weight+=' * '+self.trigWeight
-                if 'WJets' in sample.name: weight+=' * weightWpt_WJets'
-                if 'TTbar' in sample.name: weight+=' * weightWpt_TTbar'
+                if sample.type == 'wjets': weight+=' * weightWpt_WJets'
+                if sample.type == 'ttbar': weight+=' * weightWpt_TTbar'
                 weight+=' * weightEleTrigger'
 
                 if sample.isSignal:
@@ -92,6 +96,15 @@ class Plot:
                 self.Wb=sample.h.Clone(hName+'_b'); self.Wb.Sumw2()
                 self.Wbb=sample.h.Clone(hName+'_bb'); self.Wbb.Sumw2()
 
+                '''
+                print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                print 'DON\'T FORGET TO CHANGE THIS BACK'
+                scaleFactors[self.boost]['Wlight'] = 1
+                scaleFactors[self.boost]['Wb'] = 1
+                scaleFactors[self.boost]['Wbb'] = 1
+                print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                '''
+                
                 sample.chain.Draw(self.distribution+'>>'+hName+'_light',weight+' * '+str(scaleFactors[self.boost]['Wlight'])+' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==0)','GOFF')
                 sample.chain.Draw(self.distribution+'>>'+hName+'_b'    ,weight+' * '+str(scaleFactors[self.boost]['Wb'])    +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==1)','GOFF')
                 sample.chain.Draw(self.distribution+'>>'+hName+'_bb'   ,weight+' * '+str(scaleFactors[self.boost]['Wbb'])   +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==2)','GOFF')
@@ -112,6 +125,14 @@ class Plot:
                 if sample.type=='ttbar': scaleFactor=str(scaleFactors[self.boost]['ttbar'])
                 else: scaleFactor='1'
 
+                '''
+                print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                print 'DON\'T FORGET TO CHANGE THIS BACK'
+                scaleFactor ='1'
+                print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                '''
+                
+                
                 print '=============================='
                 print weight+' * '+scaleFactor
                 print '=============================='

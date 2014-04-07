@@ -29,24 +29,24 @@ else:
 
 DEBUG=False
 
-doCutTable=True
+doCutTable=False
 doLimitSetting=False
 
 doCuts=[
         'bdt',
-        #'mjj',
-        #'WLF',
-        #'WHF',
-        #'ttbar'
+        'mjj',
+        'WLF',
+        'WHF',
+        'ttbar'
         ]
 
 doVtypes=[
-          2,
+          #2,
           3
           ]
 
 doBoosts=[
-          'low',
+          #'low',
           'med',
           'high'
           ]
@@ -104,11 +104,12 @@ if __name__=='__main__':
                     
                 else:
                     plots+=[
+                            Plot(name='nPVs',distribution='nPVs',nBins=60,xMin=0,xMax=60,xTitle='nPVs',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='h_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='h_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='h_dRjj',distribution='H.dR',nBins=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                            #Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='hJet2_ptCorr',distribution='hJet_ptCorr[1]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='hJet1_csv',distribution='hJet_csv[0]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                             #Plot(name='hJet2_csv',distribution='hJet_csv[1]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
@@ -134,11 +135,15 @@ if __name__=='__main__':
         except: pass
         plot.Draw()
 
+    stdout_old = sys.stdout
+    logFile = open(outputDir + '/log.txt','a')
+    #sys.stdout = logFile
+
     cWidth=15; nameWidth=30
     for Vtype in doVtypes:
         for cuts in doCuts:
-            print ("VTYPE: "+str(Vtype)).ljust(nameWidth+(2*cWidth+1))
-            print ("CUTS: "+cuts).ljust(nameWidth+(2*cWidth+1))
+            print ("VTYPE:"+str(Vtype)).ljust(nameWidth+(2*cWidth+1))
+            print ("CUTS:"+cuts).ljust(nameWidth+(2*cWidth+1))
             print "".ljust(nameWidth),
             for boost in doBoosts: print boost.ljust(cWidth),
             print
@@ -146,7 +151,7 @@ if __name__=='__main__':
                 print sample.ljust(nameWidth),
                 try:
                     for boost in doBoosts:
-                        print str(int(round(yields[cuts][Vtype][boost][sample]))).ljust(cWidth),
+                        print str(round(yields[cuts][Vtype][boost][sample],2)).ljust(cWidth),
                 except: pass
                 print
             for sample in samples:
@@ -154,18 +159,21 @@ if __name__=='__main__':
                 print sample.name.ljust(nameWidth),
                 try:
                     for boost in doBoosts:
-                        print str(int(round(yields[cuts][Vtype][boost][sample.name]))).ljust(cWidth),
+                        print str(round(yields[cuts][Vtype][boost][sample.name],2)).ljust(cWidth),
                 except: pass
                 print
             for sample in ['Total Background','Data']:
-                print sample.ljust(nameWidth),
+                print sample.replace(' ','_').ljust(nameWidth),
                 for boost in doBoosts:
-                    print str(int(round(yields[cuts][Vtype][boost][sample]))).ljust(cWidth),
+                    print str(round(yields[cuts][Vtype][boost][sample],2)).ljust(cWidth),
                 print
             print 'Background/Data'.ljust(nameWidth),
             for boost in doBoosts:
                 try: print str(round(yields[cuts][Vtype][boost]['Total Background']/yields[cuts][Vtype][boost]['Data'],3)).ljust(cWidth),
                 except: pass
             print 3*'\n'
+
+    sys.stdout = stdout_old
+    logFile.close()
 
 

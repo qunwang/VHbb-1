@@ -1,9 +1,12 @@
+if __name__=='__main__':
+    from Sample import *
+    from Plot import Plot
+    from cuts import *
+    from DataCard import *
+
+import pickle
+
 from ROOT import *
-
-from Sample import *
-from Plot import *
-from cuts import *
-
 from tdrStyle import *
 from sys import argv
 from array import array
@@ -22,71 +25,94 @@ else:
 if len(argv)>2:
     inputDir=argv[2]
 else:
-    inputDir='/eos/uscms/store/user/jstupak/Vh/step4/2014_3_12' #Step 4
+    inputDir='/eos/uscms/store/user/jstupak/Vh/step4/2014_4_15' #Step 4
     #inputDir='/eos/uscms/store/user/sethzenz/fromdcache/' #Step 3
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+#SETTINGS
 
 DEBUG=False
 
+applyNormSFs=True
+
 doCutTable=False
-doLimitSetting=False
+doTheta=False
+makeDataCard=False
+
+doAllSys=False
+doJECSys=False
+doJERSys=False
+doBTagSys=False
+doMisTagSys=False
+doWJetsShapeSys=False
+doTTbarShapeSys=False
+doStatSys=False
 
 doCuts=[
-        'bdt',
-        'mjj',
-        'WLF',
-        'WHF',
-        'ttbar'
-        ]
+    'bdt',
+    'mjj',
+    'WLF',
+    'WHF',
+    'ttbar'
+    ]
 
 doVtypes=[
-          #2,
-          3
-          ]
+    2,
+    3
+    ]
 
 doBoosts=[
-          #'low',
-          'med',
-          'high'
-          ]
+    #'low',
+    'med',
+    'high'
+    ]
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-overflowBin=False   #FIXME - not implemented
+showOverflow=True
 
 doShapeComparison=False   #FIXME - not updated
 
-#FIXME - these are not correct for ReReco
 elLumi=19040
 muLumi=19040
 
-ewkFracUnc=.2
-topFracUnc=.15
-otherFracUnc=.15
+sigmaFracUnc={}
+sigmaFracUnc['VZ']=0.2
+sigmaFracUnc['VV']=0.2
+sigmaFracUnc['WJets']=0.2
+sigmaFracUnc['ZJets']=0.2
+sigmaFracUnc['ttbar']=0.15
+sigmaFracUnc['singleTop']=0.15
+sigmaFracUnc['QCD']=0.25
 lumiFracUnc=.022   #FIXME?
 
-signalMagFrac=25
+signalMagFrac=20
 
 treeName='tree'
                 
 #---------------------------------------------------------------------------------------------------------------------------------------------
-
-if doLimitSetting:
+"""
+if doTheta or makeDataCard:
     doVtypes=[2,3]
-    doBoosts=['low','med','high']
+    doBoosts=['med','high']
+    doCuts=['bdt']
     doCutTable=False
     
 if doCutTable:
-    doLimitSetting=False
-
+    doTheta=False
+    makeDataCard=False
+"""
 ##################################################################################################################################################################
-                                    
+
 if __name__=='__main__':
     
     print 'Welcome to doPostProc!'
     logFile = open(outputDir + '/log.txt','w')
     logFile.close()
+
+    if makeDataCard:
+        dataCard=DataCard()
+        cardFile=outputDir+'/dataCard.txt'
 
     yields={}
     plots=[]
@@ -101,32 +127,33 @@ if __name__=='__main__':
         
                 if doCutTable:
                     plots+=[Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=500000,cuts=cuts,Vtype=Vtype,boost=boost)]
-                    
+                elif doTheta or makeDataCard:
+                    plots+=[Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)]
                 else:
                     plots+=[
-                            Plot(name='nPVs',distribution='nPVs',nBins=60,xMin=0,xMax=60,xTitle='nPVs',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='h_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='h_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='h_dRjj',distribution='H.dR',nBins=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='hJet2_ptCorr',distribution='hJet_ptCorr[1]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='hJet1_csv',distribution='hJet_csv[0]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='hJet2_csv',distribution='hJet_csv[1]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='V_pT',distribution='V.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(V) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='METtype1corr_et',distribution='METtype1corr.et',nBins=25,xMin=0,xMax=500,xTitle='E_{T}^{miss} [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='METtype1corr_sig',distribution='METtype1corr.sig',nBins=25,xMin=0,xMax=10,xTitle='E_{T}^{miss} significance',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='naJets',distribution='naJets',nBins=20,xMin=0,xMax=30,xTitle='N_{aj}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='nalep',distribution='nalep',nBins=20,xMin=0,xMax=20,xTitle='N_{al}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='HVdPhi',distribution='HVdPhi',nBins=20,xMin=0,xMax=3.3,xTitle='#Delta#phi(V,H)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='lMETdPhi',distribution='lMETdPhi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#Delta#phi(E_{T}^{miss},l)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_costheta1',distribution='x_costheta1',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{1})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_costheta2',distribution='x_costheta2',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_phi',distribution='x_phi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_costhetastar',distribution='x_costhetastar',nBins=20,xMin=0,xMax=1,xTitle='Cos(#theta*)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_phi1',distribution='x_phi1',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi_{1}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_mVH',distribution='x_mVH',nBins=25,xMin=0,xMax=1000,xTitle='m(VH)[GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                            #Plot(name='x_rapidityVH',distribution='x_rapidityVH',nBins=20,xMin=-3,xMax=3,xTitle='y(VH)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='nPVs',distribution='nPVs',nBins=60,xMin=0,xMax=60,xTitle='nPVs',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='h_dRjj',distribution='H.dR',nBins=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet2_ptCorr',distribution='hJet_ptCorr[1]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet1_csv',distribution='hJet_csv[0]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hJet2_csv',distribution='hJet_csv[1]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='V_pT',distribution='V.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(V) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='METtype1corr_et',distribution='METtype1corr.et',nBins=25,xMin=0,xMax=500,xTitle='E_{T}^{miss} [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='METtype1corr_sig',distribution='METtype1corr.sig',nBins=25,xMin=0,xMax=10,xTitle='E_{T}^{miss} significance',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='naJets',distribution='naJets',nBins=20,xMin=0,xMax=30,xTitle='N_{aj}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='nalep',distribution='nalep',nBins=20,xMin=0,xMax=20,xTitle='N_{al}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='HVdPhi',distribution='HVdPhi',nBins=20,xMin=0,xMax=3.3,xTitle='#Delta#phi(V,H)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='lMETdPhi',distribution='lMETdPhi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#Delta#phi(E_{T}^{miss},l)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_costheta1',distribution='x_costheta1',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{1})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_costheta2',distribution='x_costheta2',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_phi',distribution='x_phi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_costhetastar',distribution='x_costhetastar',nBins=20,xMin=0,xMax=1,xTitle='Cos(#theta*)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_phi1',distribution='x_phi1',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi_{1}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_mVH',distribution='x_mVH',nBins=25,xMin=0,xMax=1000,xTitle='m(VH)[GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='x_rapidityVH',distribution='x_rapidityVH',nBins=20,xMin=-3,xMax=3,xTitle='y(VH)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         ]
     
     for plot in plots:
@@ -134,10 +161,12 @@ if __name__=='__main__':
         try: yields[plot.cuts][plot.Vtype][plot.boost]=y
         except: pass
         plot.Draw()
+        if makeDataCard: dataCard.appendChannel('Vtype'+str(plot.Vtype)+'_'+plot.boost+'Boost',y)
+    pickle.dump(yields,open(outputDir+'/yields.p','wb'))
 
     stdout_old = sys.stdout
     logFile = open(outputDir + '/log.txt','a')
-    #sys.stdout = logFile
+    sys.stdout = logFile
 
     cWidth=15; nameWidth=30
     for Vtype in doVtypes:
@@ -147,14 +176,14 @@ if __name__=='__main__':
             print "".ljust(nameWidth),
             for boost in doBoosts: print boost.ljust(cWidth),
             print
-            for sample in ['Wlight','Wb','Wbb','EWK','top','other']:
-                print sample.ljust(nameWidth),
+            for histName in ['W_light','W_b','W_bb','ZJets','ttbar','singleTop','QCD','VZ','VV']:
+                print histName.ljust(nameWidth),
                 try:
                     for boost in doBoosts:
-                        print str(round(yields[cuts][Vtype][boost][sample],2)).ljust(cWidth),
+                        print str(round(yields[cuts][Vtype][boost][histName],2)).ljust(cWidth),
                 except: pass
                 print
-            for sample in samples:
+            for sample in allSamples:
                 #if sample.isData: continue
                 print sample.name.ljust(nameWidth),
                 try:
@@ -167,13 +196,22 @@ if __name__=='__main__':
                 for boost in doBoosts:
                     print str(round(yields[cuts][Vtype][boost][sample],2)).ljust(cWidth),
                 print
-            print 'Background/Data'.ljust(nameWidth),
+            print 'Data/Background'.ljust(nameWidth),
             for boost in doBoosts:
-                try: print str(round(yields[cuts][Vtype][boost]['Total Background']/yields[cuts][Vtype][boost]['Data'],3)).ljust(cWidth),
+                try: print str(round(yields[cuts][Vtype][boost]['Data']/yields[cuts][Vtype][boost]['Total Background'],3)).ljust(cWidth),
                 except: pass
             print 3*'\n'
 
     sys.stdout = stdout_old
     logFile.close()
 
+    if makeDataCard:
+        #sys.stdout=open(cardFile,'w')
+        #dataCard.construct(sys.stdout)
+        dataCard.construct()
+        dataCard.toTxt(cardFile)
+             
 
+
+
+    

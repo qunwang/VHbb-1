@@ -20,16 +20,12 @@ void step4::Loop(){
    inputTree->SetBranchStatus("aLepton_pt",1);
    inputTree->SetBranchStatus("aLepton_eta",1);
    inputTree->SetBranchStatus("aLepton_pfCorrIso",1);
-   inputTree->SetBranchStatus("cschaloFlag",1);
-   inputTree->SetBranchStatus("ecalFlag",1);
-   inputTree->SetBranchStatus("eebadscFlag",1);
    inputTree->SetBranchStatus("effectiveLumi",1);
    inputTree->SetBranchStatus("EVENT",1);
    //inputTree->SetBranchStatus("EVENT.json",1);
    //inputTree->SetBranchStatus("EVENT.run",1);
    inputTree->SetBranchStatus("H",1);
    inputTree->SetBranchStatus("hbhe",1);
-   inputTree->SetBranchStatus("hcallaserFlag",1);
    inputTree->SetBranchStatus("hJet_csv",1);
    inputTree->SetBranchStatus("hJet_csvReshapedNew",1);
    inputTree->SetBranchStatus("hJet_csv_downBC",1);
@@ -46,7 +42,6 @@ void step4::Loop(){
    inputTree->SetBranchStatus("hJet_ptCorr",1);
    inputTree->SetBranchStatus("hJet_puJetIdL",1);
    inputTree->SetBranchStatus("HVdPhi",1);
-   inputTree->SetBranchStatus("isBadHcalEvent",1);
    inputTree->SetBranchStatus("lMETdPhi",1);
    inputTree->SetBranchStatus("METtype1corr",1);
    inputTree->SetBranchStatus("naJets",1);
@@ -54,7 +49,6 @@ void step4::Loop(){
    inputTree->SetBranchStatus("PUweight",1);
    inputTree->SetBranchStatus("PUweightM",1);
    inputTree->SetBranchStatus("PUweightP",1);
-   inputTree->SetBranchStatus("trackingfailureFlag",1);
    inputTree->SetBranchStatus("triggerFlags",1);
    inputTree->SetBranchStatus("V",1);
    inputTree->SetBranchStatus("vLepton_charge",1);

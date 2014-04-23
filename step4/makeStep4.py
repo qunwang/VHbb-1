@@ -1,9 +1,10 @@
 import os,shutil,datetime
+from ROOT import *
 
 #IO directories must be full paths
 
-inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal'   #nominal MC
-#inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19'   #all MC
+#inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal'   #nominal MC
+inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19'   #all MC
 #inputDir='/eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_DATA_split_varsBDTsAdded_v19'   #data
 
 outputDir='/eos/uscms/store/user/jstupak/Vh/step4'
@@ -19,6 +20,9 @@ def files(dir, files):
 runDir=os.getcwd()
 
 if not os.path.isdir('condor'): os.mkdir('condor')
+
+gROOT.ProcessLine(".L METzCalculator.cc+")
+gROOT.ProcessLine(".L step4.cc+")
 
 cTime=datetime.datetime.now()
 date='%i_%i_%i'%(cTime.year,cTime.month,cTime.day)

@@ -3,19 +3,19 @@ scaleFactors= {}
 for i in ['low','med','high']:
     scaleFactors[i] = {}
 
-scaleFactors['low']['Wlight']=1.03
-scaleFactors['low']['Wb']=2.22
-scaleFactors['low']['Wbb']=1.58
+scaleFactors['low']['W_light']=1.03
+scaleFactors['low']['W_b']=2.22
+scaleFactors['low']['W_bb']=1.58
 scaleFactors['low']['ttbar']=1.03
 
-scaleFactors['med']['Wlight']=1.02
-scaleFactors['med']['Wb']=2.90
-scaleFactors['med']['Wbb']=1.30
+scaleFactors['med']['W_light']=1.02
+scaleFactors['med']['W_b']=2.90
+scaleFactors['med']['W_bb']=1.30
 scaleFactors['med']['ttbar']=1.02
 
-scaleFactors['high']['Wlight']=1.04
-scaleFactors['high']['Wb']=2.46
-scaleFactors['high']['Wbb']=0.77
+scaleFactors['high']['W_light']=1.04
+scaleFactors['high']['W_b']=2.46
+scaleFactors['high']['W_bb']=0.77
 scaleFactors['high']['ttbar']=1.00
 
 """

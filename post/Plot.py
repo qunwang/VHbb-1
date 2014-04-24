@@ -135,6 +135,17 @@ class Plot:
                 sample.chain.Draw(self.distribution+'>>'+self.extraHists[W_b].GetName(),weight+' * '+str(scaleFactors[self.boost]['W_b'])    +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==1)','GOFF')
                 sample.chain.Draw(self.distribution+'>>'+self.extraHists[W_bb].GetName(),weight+' * '+str(scaleFactors[self.boost]['W_bb'])   +' * ('+theCuts+' && ((abs(hJet_flavour[0])==5)+(abs(hJet_flavour[1])==5))==2)','GOFF')
 
+                if showOverflow:
+                    for hName in [W_light,W_b,W_bb]:
+                        h=self.extraHists[hName]
+
+                        content=h.GetBinContent(self.nBins)+h.GetBinContent(self.nBins+1)
+                        error=sqrt(h.GetBinError(self.nBins)**2+h.GetBinError(self.nBins+1)**2)
+                        h.SetBinContent(self.nBins,content)
+                        h.SetBinError(self.nBins,error)
+                        h.SetBinContent(self.nBins+1,0)
+                        h.SetBinError(self.nBins+1,0)
+
                 sample.h.Add(self.extraHists[W_light])
                 sample.h.Add(self.extraHists[W_b])
                 sample.h.Add(self.extraHists[W_bb])
@@ -237,8 +248,8 @@ class Plot:
             self.extraHists['singleTop'].SetLineColor(ROOT.kCyan-3)
         except:pass
         try:
-            self.extraHists['QCD'].SetFillColor(ROOT.Magenta)
-            self.extraHists['QCD'].SetLineColor(ROOT.Magenta+1)
+            self.extraHists['QCD'].SetFillColor(ROOT.kMagenta)
+            self.extraHists['QCD'].SetLineColor(ROOT.kMagenta+1)
         except:pass
 
         """

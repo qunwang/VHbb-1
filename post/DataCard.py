@@ -1,10 +1,10 @@
 from utils import printTable
 import pickle
 
-distribution='h_mass_bdt'
+defaultDistribution='h_mass_mjj'
 
-signalNames=['Wh_125p6_0P','Wh_125p6_0M']
-backgroundNames=['W_light','W_b','W_bb','ZJets','ttbar','singleTop',
+defaultSignalNames=['Wh_125p6_0P','Wh_125p6_0M']
+defaultBackgroundNames=['W_light','W_b','W_bb','ZJets','ttbar','singleTop',
                  #'QCD',
                  'VZ','VV']
 
@@ -69,38 +69,34 @@ shapeSystematics=[('JEC',{#'Wh_125p6_0P':one,'Wh_125p6_0M':one,
 
 class Channel:
 
-    def __init__(self, name, yields):
+    def __init__(self, name, yields, signalNames, backgroundNames):
         self.name=name
 
         self.data=yields['Data']
 
         self.signals={}
         for key in signalNames:
-            try: self.signals[key]=yields[key]
-            except: pass
+            self.signals[key]=yields[key]
             
         self.backgrounds={}
         for key in backgroundNames:
-            try: self.backgrounds[key]=yields[key]
-            except: pass
+            self.backgrounds[key]=yields[key]
 
         self.allProcesses=self.signals
         self.allProcesses.update(self.backgrounds)
-        
-        self.systematics=[]
         
 ########################################################################
 
 class DataCard:
 
-    def __init__(self):
+    def __init__(self, distribution=defaultDistribution, signalNames=defaultSignalNames, backgroundNames=defaultBackgroundNames):
         self.channels=[]
         self.data=[]
 
-        self.signalNames=[]
-        self.backgroundNames=[]
-        self.processNames=[]
-
+        self.distribution=distribution
+        self.signalNames=signalNames
+        self.backgroundNames=backgroundNames
+        self.processNames=signalNames+backgroundNames
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -126,19 +122,8 @@ class DataCard:
         
     def appendChannel(self, name, yields):
 
-        channel=Channel(name, yields)
+        channel=Channel(name, yields, self.signalNames, self.backgroundNames)
         self.channels.append(channel)
-
-        if not self.signalNames:
-            self.signalNames=[]
-            for name in signalNames:
-                if name in yields.keys(): self.signalNames.append(name)
-
-            self.backgroundNames=[]
-            for name in backgroundNames:
-                if name in yields.keys(): self.backgroundNames.append(name)
-
-            self.processNames=self.signalNames+self.backgroundNames
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -180,8 +165,8 @@ class DataCard:
 
         self.data.append(line)
 
-        self.data.append(['shapes','','','','data_obs','*','plots.root',distribution+'_$CHANNEL__Data'])
-        self.data.append(['shapes','','','','*',       '*','plots.root',distribution+'_$CHANNEL__$PROCESS',distribution+'_$CHANNEL__$PROCESS_$SYSTEMATIC'])
+        self.data.append(['shapes','','','','data_obs','*','plots.root',self.distribution+'_$CHANNEL__Data'])
+        self.data.append(['shapes','','','','*',       '*','plots.root',self.distribution+'_$CHANNEL__$PROCESS',self.distribution+'_$CHANNEL__$PROCESS_$SYSTEMATIC'])
         
         self.data.append(line)
 

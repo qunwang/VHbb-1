@@ -1,4 +1,5 @@
 from sys import stdout
+from ROOT import *
 
 def isEqual(a, b):
     try:
@@ -11,6 +12,27 @@ def contains(a, b):
         return b.upper() in a.upper()
     except AttributeError:
         return b in a
+
+##############################################################################
+
+def unroll(h):
+
+    nX=h.GetNbinsX()+2
+    nY=h.GetNbinsY()+2
+
+    result=TH1F("", h.GetTitle(), nX*nY, 0, nX*nY)
+
+    for yBin in range(nY):
+        for xBin in range(nX):
+            n = xBin + (nX*yBin)
+            result.SetBinContent(n,h.GetBinContent(xBin,yBin))
+            result.SetBinError(n,h.GetBinError(xBin,yBin))
+
+    name=h.GetName()
+    h.Delete()
+    result.SetName(name)
+    
+    return result
     
 ##############################################################################
 #Printing tables

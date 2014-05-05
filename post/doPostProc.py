@@ -25,15 +25,19 @@ else:
 if len(argv)>2:
     inputDir=argv[2]
 else:
-    inputDir='/eos/uscms/store/user/jstupak/Vh/step4/2014_4_15' #Step 4
-    #inputDir='/eos/uscms/store/user/sethzenz/fromdcache/' #Step 3
+    inputDir='/eos/uscms/store/user/lpcmbja/noreplica/jstupak/step4/2014_5_4'   #Step 4
+    #inputDir='/eos/uscms/store/user/sethzenz/fromdcache' #Step 3
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 #SETTINGS
 
 DEBUG=False
 
+blind=True
+
 applyNormSFs=True
+
+unrolld2D=True
 
 doCutTable=False
 doTheta=False
@@ -50,22 +54,26 @@ doStatSys=False
 
 doCuts=[
     'bdt',
-    'mjj',
-    'WLF',
-    'WHF',
-    'ttbar'
+    #'mjj',
+    #'WLF',
+    #'WHF',
+    #'ttbar'
     ]
 
 doVtypes=[
-    2,
+    #2,
     3
     ]
 
 doBoosts=[
     #'low',
-    'med',
+    #'med',
     'high'
     ]
+
+BDTStitching='((1+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*(BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4<0))+((3+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>0)*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4<0)))+((5+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>0)*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4>0)*(BDT_8TeV_H125Sig_VVBkg_newCuts4<0)))+((7+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>0)*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4>0)*(BDT_8TeV_H125Sig_VVBkg_newCuts4>0)))'
+MELA_SMvPS='(1E-9*MELA_PS)/(MELA_SM + (1E-9*MELA_PS))'  #This arbitrary factor needs to be optimized
+MELA_SMvHO='(1E-9*MELA_HO)/(MELA_SM + (1E-9*MELA_HO))'  #This arbitrary factor needs to be optimized
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -126,42 +134,68 @@ if __name__=='__main__':
                 yields[cuts][Vtype][boost]={}
         
                 if doCutTable:
-                    plots+=[Plot(name='dummy',distribution='H.pt',nBins=1,xMin=0,xMax=500000,cuts=cuts,Vtype=Vtype,boost=boost)]
+                    plots+=[Plot(name='dummy',distribution='H.pt',nBinsX=1,xMin=0,xMax=500000,cuts=cuts,Vtype=Vtype,boost=boost)]
                 elif doTheta or makeDataCard:
-                    plots+=[Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)]
+                    plots+=[
+                        Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',binsX=[0]+range(300,700,25)+range(700,1001,100),xTitle='m(Vh) [GeV]',binsY=[0,50]+range(75,175,10)+range(175,251,25),yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
+                        #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',nBinsX=20,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',nBinsY=20,yMin=0,yMax=500,yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
+                        #Plot(name='h_mass',distribution='H.mass',nBinsX=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
+                        #Plot(name='x_mVH',distribution='x_mVH',nBinsX=40,xMin=0,xMax=1200,xTitle='m(VH) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)  
+                        ]
                 else:
                     plots+=[
-                        Plot(name='nPVs',distribution='nPVs',nBins=60,xMin=0,xMax=60,xTitle='nPVs',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='h_pT',distribution='H.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='h_mass',distribution='H.mass',nBins=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='h_eta',distribution='H.eta',nBins=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='h_dRjj',distribution='H.dR',nBins=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='hJet2_ptCorr',distribution='hJet_ptCorr[1]',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='hJet1_csv',distribution='hJet_csv[0]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='hJet2_csv',distribution='hJet_csv[1]',nBins=25,xMin=0,xMax=1,xTitle='csv(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='V_pT',distribution='V.pt',nBins=25,xMin=0,xMax=500,xTitle='p_{T}(V) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='METtype1corr_et',distribution='METtype1corr.et',nBins=25,xMin=0,xMax=500,xTitle='E_{T}^{miss} [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='METtype1corr_sig',distribution='METtype1corr.sig',nBins=25,xMin=0,xMax=10,xTitle='E_{T}^{miss} significance',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='naJets',distribution='naJets',nBins=20,xMin=0,xMax=30,xTitle='N_{aj}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='nalep',distribution='nalep',nBins=20,xMin=0,xMax=20,xTitle='N_{al}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='HVdPhi',distribution='HVdPhi',nBins=20,xMin=0,xMax=3.3,xTitle='#Delta#phi(V,H)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='lMETdPhi',distribution='lMETdPhi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#Delta#phi(E_{T}^{miss},l)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_costheta1',distribution='x_costheta1',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{1})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_costheta2',distribution='x_costheta2',nBins=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_phi',distribution='x_phi',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_costhetastar',distribution='x_costhetastar',nBins=20,xMin=0,xMax=1,xTitle='Cos(#theta*)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_phi1',distribution='x_phi1',nBins=20,xMin=-3.3,xMax=3.3,xTitle='#phi_{1}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_mVH',distribution='x_mVH',nBins=25,xMin=0,xMax=1000,xTitle='m(VH)[GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='x_rapidityVH',distribution='x_rapidityVH',nBins=20,xMin=-3,xMax=3,xTitle='y(VH)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',nBinsX=25,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',nBinsY=25,yMin=0,yMax=500,yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',binsX=[0]+range(300,700,25)+range(700,1001,100),xTitle='m(Vh) [GeV]',binsY=[0,50]+range(75,175,10)+range(175,251,25),yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+
+                        Plot(name='BDT_8TeV_H125Sig_NewTTbarBkg',distribution='BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='BDT_8TeV_H125Sig_0b1b2bWjetsBkg',distribution='BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='BDT_8TeV_H125Sig_VVBkg',distribution='BDT_8TeV_H125Sig_VVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='allBDTs',distribution=BDTStitching,nBinsX=60,xMin=0,xMax=8,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+
+                        Plot(name='MELA_SM',distribution='MELA_SM',nBinsX=25,xMin=0,xMax=.025, xTitle='L(0^{+})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='MELA_PS',distribution='MELA_PS',nBinsX=25,xMin=0,xMax=50000,xTitle='L(0^{-})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='MELA_HO',distribution='MELA_HO',nBinsX=25,xMin=0,xMax=30000,xTitle='L(0^{+}_{HO})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+
+                        Plot(name='MELA_SMvPS',distribution=MELA_SMvPS,nBinsX=25,xMin=0,xMax=1, xTitle='L(0^{-})/(L(0^{+})+L(0^{-}))',          yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='MELA_SMvHO',distribution=MELA_SMvHO,nBinsX=25,xMin=0,xMax=1, xTitle='L(0^{+}_{HO})/(L(0^{+})+L(0^{+}_{HO}))',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                                                
+                        Plot(name='allBDTs_v_VstarMass',distribution=BDTStitching+':x_mVH',nBinsX=10,xMin=200,xMax=1200,xTitle='m(Vh) [GeV]',nBinsY=60,yMin=0,yMax=8,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        
+                        #Plot(name='nPVs',distribution='nPVs',nBinsX=60,xMin=0,xMax=60,xTitle='nPVs',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='h_pT',distribution='H.pt',nBinsX=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='h_mass',distribution='H.mass',nBinsX=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='h_eta',distribution='H.eta',nBinsX=20,xMin=-4,xMax=4,xTitle='#eta(h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='h_dRjj',distribution='H.dR',nBinsX=20,xMin=0,xMax=10,xTitle='#deltaR(j_{1},j_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hJet1_ptCorr',distribution='hJet_ptCorr[0]',nBinsX=25,xMin=0,xMax=500,xTitle='p_{T}(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hJet2_ptCorr',distribution='hJet_ptCorr[1]',nBinsX=25,xMin=0,xMax=500,xTitle='p_{T}(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hJet1_csv',distribution='hJet_csv[0]',nBinsX=25,xMin=0,xMax=1,xTitle='csv(j_{1}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hJet2_csv',distribution='hJet_csv[1]',nBinsX=25,xMin=0,xMax=1,xTitle='csv(j_{2}) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='V_pT',distribution='V.pt',nBinsX=25,xMin=0,xMax=500,xTitle='p_{T}(V) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='METtype1corr_et',distribution='METtype1corr.et',nBinsX=25,xMin=0,xMax=500,xTitle='E_{T}^{miss} [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='METtype1corr_sig',distribution='METtype1corr.sig',nBinsX=25,xMin=0,xMax=10,xTitle='E_{T}^{miss} significance',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='naJets',distribution='naJets',nBinsX=20,xMin=0,xMax=30,xTitle='N_{aj}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='nalep',distribution='nalep',nBinsX=20,xMin=0,xMax=20,xTitle='N_{al}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hVdPhi',distribution='HVdPhi',nBinsX=20,xMin=0,xMax=3.3,xTitle='#Delta#phi(V,h)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='lMETdPhi',distribution='lMETdPhi',nBinsX=20,xMin=-3.3,xMax=3.3,xTitle='#Delta#phi(E_{T}^{miss},l)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_costheta1',distribution='x_costheta1',nBinsX=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{1})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_costheta2',distribution='x_costheta2',nBinsX=20,xMin=-1,xMax=1,xTitle='Cos(#theta_{2})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_phi',distribution='x_phi',nBinsX=20,xMin=-3.3,xMax=3.3,xTitle='#phi',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_costhetastar',distribution='x_costhetastar',nBinsX=20,xMin=0,xMax=1,xTitle='Cos(#theta*)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_phi1',distribution='x_phi1',nBinsX=20,xMin=-3.3,xMax=3.3,xTitle='#phi_{1}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_mVh',distribution='x_mVH',nBinsX=25,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_rapidityVh',distribution='x_rapidityVH',nBinsX=20,xMin=-3,xMax=3,xTitle='y(Vh)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         ]
-    
+
     for plot in plots:
         y=plot.Prepare()
         try: yields[plot.cuts][plot.Vtype][plot.boost]=y
         except: pass
         plot.Draw()
-        if makeDataCard: dataCard.appendChannel('Vtype'+str(plot.Vtype)+'_'+plot.boost+'Boost',y)
+        plot.Write()
+        
+        if makeDataCard:
+            dataCard.appendChannel('Vtype'+str(plot.Vtype)+'_'+plot.boost+'Boost',y)
     pickle.dump(yields,open(outputDir+'/yields.p','wb'))
 
     stdout_old = sys.stdout
@@ -208,6 +242,7 @@ if __name__=='__main__':
     if makeDataCard:
         #sys.stdout=open(cardFile,'w')
         #dataCard.construct(sys.stdout)
+        dataCard.distribution='_'.join(plots[0].name.split('_')[:-2])
         dataCard.construct()
         dataCard.toTxt(cardFile)
              

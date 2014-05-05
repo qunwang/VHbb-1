@@ -117,8 +117,8 @@ allSamples=samplesForPlotting+[Wh_125p6_0PH]
 
 #-----------------------------------------------------------------------------------------------------------------------------------------------
 
-WJetsHW=Sample('WJets_WJetsShapeUp','WJets','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal/WJets_boostedHW_lumiWeighted',systematic='WJetsShapeUp')
-ttbarMCatNLO=Sample('ttbar_ttbarShapeUp','ttbar','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal/TTbar_mcAtNLO_lumiWeighted',systematic='ttbarShapeUp')
+WJetsHW=Sample('WJets_shapeSys','WJets','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal/WJets_boostedHW_lumiWeighted',systematic='WJetsShapeUp')
+ttbarMCatNLO=Sample('ttbar_shapeSys','ttbar','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal/TTbar_mcAtNLO_lumiWeighted',systematic='ttbarShapeUp')
 systematicSamples=[WJetsHW,ttbarMCatNLO]
 
 systematics=['JECDown','JECUp','JERDown','JERUp','btagDown','btagUp','mistagDown','mistagUp']

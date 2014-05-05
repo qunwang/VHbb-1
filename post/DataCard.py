@@ -2,6 +2,9 @@ from utils import printTable
 import pickle
 
 defaultDistribution='h_mass_mjj'
+#defaultDistribution='x_mVH_mjj'
+#defaultDistribution='h_mass_bdt'
+#defaultDistribution='x_mVH_bdt'
 
 defaultSignalNames=['Wh_125p6_0P','Wh_125p6_0M']
 defaultBackgroundNames=['W_light','W_b','W_bb','ZJets','ttbar','singleTop',
@@ -80,7 +83,8 @@ class Channel:
             
         self.backgrounds={}
         for key in backgroundNames:
-            self.backgrounds[key]=yields[key]
+            try: self.backgrounds[key]=yields[key]
+            except: pass
 
         self.allProcesses=self.signals
         self.allProcesses.update(self.backgrounds)
@@ -191,7 +195,8 @@ class DataCard:
         row=['rate','']
         for channel in self.channels:
             for process in self.processNames:
-                row.append(str(channel.allProcesses[process]))
+                try: row.append(str(channel.allProcesses[process]))
+                except: row.append(0)
         self.data.append(row)
 
         self.data.append(line)

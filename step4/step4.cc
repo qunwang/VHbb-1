@@ -22,8 +22,6 @@ void step4::Loop(){
    inputTree->SetBranchStatus("aLepton_pfCorrIso",1);
    inputTree->SetBranchStatus("effectiveLumi",1);
    inputTree->SetBranchStatus("EVENT",1);
-   //inputTree->SetBranchStatus("EVENT.json",1);
-   //inputTree->SetBranchStatus("EVENT.run",1);
    inputTree->SetBranchStatus("H",1);
    inputTree->SetBranchStatus("hbhe",1);
    inputTree->SetBranchStatus("hJet_csv",1);
@@ -69,6 +67,11 @@ void step4::Loop(){
    inputTree->SetBranchStatus("weightWpt_WJets",1);
    inputTree->SetBranchStatus("weightWpt_TTbar",1);
    inputTree->SetBranchStatus("weightEleTrigger",1);
+   inputTree->SetBranchStatus("BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4",1);
+   inputTree->SetBranchStatus("BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4",1);
+   inputTree->SetBranchStatus("BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4",1);
+   inputTree->SetBranchStatus("BDT_8TeV_H125Sig_VVBkg_newCuts4",1);
+
    inputTree->SetBranchStatus("x_costheta1",1);
    inputTree->SetBranchStatus("x_costheta2",1);
    inputTree->SetBranchStatus("x_costhetastar",1);
@@ -77,6 +80,10 @@ void step4::Loop(){
    inputTree->SetBranchStatus("x_phi1",1);
    inputTree->SetBranchStatus("x_phi2",1);
    inputTree->SetBranchStatus("x_rapidityVH",1);
+
+   inputTree->SetBranchStatus("MELA_SM",1);
+   inputTree->SetBranchStatus("MELA_PS",1);
+   inputTree->SetBranchStatus("MELA_HO",1);
 
    outputFile->cd();
    TTree *outputTree = inputTree->CloneTree(0);
@@ -95,7 +102,8 @@ void step4::Loop(){
 
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
-      Long64_t ientry = LoadTree(jentry);
+
+     Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = inputTree->GetEntry(jentry);   nbytes += nb;
       
@@ -151,8 +159,8 @@ void step4::Loop(){
 		     a_costheta1, a_costheta2, a_Phi, a_costhetastar, a_Phi1, a_Phi2);
 
       //remap to convention of arXiv:1309.4819
-      x_costheta1 = (float) a_costheta1;
-      x_costheta2 = (float) a_costhetastar;
+      x_costheta2 = (float) a_costheta1;   //JS3 - swapped according to suggestion from Sinan
+      x_costheta1 = (float) a_costhetastar;   //JS3 - swapped according to suggestion from Sinan
       x_phi = (float) a_Phi1;
       x_costhetastar = TMath::Abs( (float) a_costheta2);
       x_phi1 = (float) a_Phi;
@@ -161,7 +169,11 @@ void step4::Loop(){
       x_mVH = (float) p4_VH.M();
       x_rapidityVH = (float) p4_VH.Rapidity();
 
-
+      //float mH_, float costheta1_, float costheta2_, float phi_, float m_, float Y_, bool withAcc = false, int signalNo
+      MELA_SM=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 0);
+      MELA_PS=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 1);
+      MELA_HO=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 2);
+      
       //W pT Reweighting
       double wptslope = -1.057e-03;
       double ttwptslope = -1.087e-03;
@@ -177,10 +189,10 @@ void step4::Loop(){
 	weightEleTrigger = 1.0;
       }
       outputTree->Fill();
+
    }
    
    outputTree->Write();
-
 }
 
 

@@ -14,6 +14,8 @@
 #include <math.h>
 
 #include "METzCalculator.h"
+#include "KDcalcPPWH.cc"
+#include "RooRealVar.h"
 
 typedef struct 
 {
@@ -57,7 +59,6 @@ public :
    TTree          *treeEleTrigger;
    TFile          *fileEleTrigger;
 
-//JS3 - adding angular variables
    Float_t x_costheta1;
    Float_t x_costheta2;
    Float_t x_phi;
@@ -66,7 +67,12 @@ public :
    Float_t x_phi2;
    Float_t x_mVH;
    Float_t x_rapidityVH;
-   
+
+   KDcalcPPWH *KDCalc;
+   Float_t MELA_SM;
+   Float_t MELA_PS;
+   Float_t MELA_HO;
+
    Float_t lMETdPhi;
    
    Float_t weightWpt_WJets;
@@ -431,7 +437,6 @@ public :
    Float_t         BDT_8TeV_VVSig_0b1b2bWjetsNewTTbarBkg_newCuts4;
    Float_t         BDT_8TeV_VVSig_NewTTbarBkg_newCuts4;
 
-   //JS3 - Adding angular variables
    TBranch *b_x_costheta1;
    TBranch *b_x_costheta2;
    TBranch *b_x_phi;
@@ -440,6 +445,10 @@ public :
    TBranch *b_x_phi2;
    TBranch *b_x_mVH;
    TBranch *b_x_rapidityVH;
+
+   TBranch *b_MELA_SM;
+   TBranch *b_MELA_PS;
+   TBranch *b_MELA_HO;
    
    TBranch *b_lMETdPhi;
 
@@ -778,10 +787,12 @@ step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inpu
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-  inputFile=new TFile(inputFileName);
+  inputFile=TFile::Open(inputFileName);
   inputTree=(TTree*)inputFile->Get("tree");
   
   outputFile=new TFile(outputFileName,"RECREATE");
+
+  KDCalc=new KDcalcPPWH(8000,125.6);
 
   //Stuff for electron trigger efficiency
   //fileEleTrigger=new TFile("/eos/uscms/store/user/sethzenz/fromdcache/EleRecoId.Presel.2012ABCD.root","READ");
@@ -837,7 +848,6 @@ void step4::Init(TTree *tree)
    fCurrent = -1;
    inputTree->SetMakeClass(1);
 
-   //JS3 - Adding angular variables
    b_x_costheta1=inputTree->Branch("x_costheta1",&x_costheta1,"x_costheta1/F");
    b_x_costheta2=inputTree->Branch("x_costheta2",&x_costheta2,"x_costheta2/F");
    b_x_phi=inputTree->Branch("x_phi",&x_phi,"x_phi/F");
@@ -847,6 +857,10 @@ void step4::Init(TTree *tree)
    b_x_mVH=inputTree->Branch("x_mVH",&x_mVH,"x_mVH/F");
    b_x_rapidityVH=inputTree->Branch("x_rapidityVH",&x_rapidityVH,"x_rapidityVH/F");
    
+   b_MELA_SM=inputTree->Branch("MELA_SM",&MELA_SM,"MELA_SM/F");
+   b_MELA_PS=inputTree->Branch("MELA_PS",&MELA_PS,"MELA_PS/F");
+   b_MELA_HO=inputTree->Branch("MELA_HO",&MELA_HO,"MELA_HO/F");
+
    b_lMETdPhi=inputTree->Branch("lMETdPhi",&lMETdPhi,"lMETdPhi/F");
 
    b_weightWpt_WJets=inputTree->Branch("weightWpt_WJets",&weightWpt_WJets,"weightWpt_WJets/F");

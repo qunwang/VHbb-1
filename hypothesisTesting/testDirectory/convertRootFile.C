@@ -32,12 +32,12 @@ void convertRootFile(TString sigName = "Wh_125p6_0P", TString sigAltName = "Wh_1
     TString oldName = obj->GetName(); 
     TString newName = oldName;
     
-    if( oldName.Contains(sigName+"_") ) {
+    if( oldName.Contains(sigName) ) {
       newName.ReplaceAll(sigName,"sig");
       cout << oldName << " " << newName << endl;
       makeNew(myFile, oldName, newName);
     }
-    else if( oldName.Contains(sigAltName+"_") ) {
+    else if( oldName.Contains(sigAltName) ) {
       newName.ReplaceAll(sigAltName,"sig_ALT");
       cout << oldName << " " << newName << endl;
       makeNew(myFile, oldName, newName);

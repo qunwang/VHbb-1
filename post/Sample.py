@@ -38,11 +38,11 @@ class Sample:
             print "No inputDir specified for sample:",self.name
             return
 
-        path+='/'+self.inputDir
-        self.inputList=glob(path+'/*'+self.fileIdentifier+'*.root')
+        path+='/'+self.inputDir+'/*'+self.fileIdentifier+'*.root'
+        self.inputList=glob(path)
 
         if len(self.inputList)==0:
-            print "No input files found for sample:",self.name
+            print "No input files found for sample:",self.name,"matching",path
             return
 
     #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -66,10 +66,10 @@ class Sample:
 
 #name,sampleType,inputDir,fileIdentifier,altName,channel):
 
-Wh_125p6_0P=Sample('Wh_125p6_0P','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','Step2_WHiggs0P_M-125p6','Wh (CP = 0^{+})')
-Wh_125p6_0PH=Sample('Wh_125p6_0PH','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','Step2_WHiggs0PH_M-125p6')
-Wh_125p6_0M=Sample('Wh_125p6_0M','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','Step2_WHiggs0M_M-125p6','Wh (CP = 0^{-})')
-Wh_125p6_0Mf05ph0=Sample('Wh_125p6_0Mf05ph0','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','Step2_WHiggs0Mf05ph0_M-125p6','Wh (CP mixed 50/50)')
+Wh_125p6_0P=Sample('Wh_125p6_0P','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','WHiggs0P_M-125p6','Wh (CP = 0^{+})')
+Wh_125p6_0PH=Sample('Wh_125p6_0PH','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','WHiggs0PH_M-125p6')
+Wh_125p6_0M=Sample('Wh_125p6_0M','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','WHiggs0M_M-125p6','Wh (CP = 0^{-})')
+Wh_125p6_0Mf05ph0=Sample('Wh_125p6_0Mf05ph0','signal','Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal','WHiggs0Mf05ph0_M-125p6','Wh (CP mixed 50/50)')
 
 signals=[Wh_125p6_0P,Wh_125p6_0PH,Wh_125p6_0M,Wh_125p6_0Mf05ph0]
 
@@ -123,11 +123,12 @@ systematicSamples=[WJetsHW,ttbarMCatNLO]
 
 systematics=['JECDown','JECUp','JERDown','JERUp','btagDown','btagUp','mistagDown','mistagUp']
 for sample in allSamples:
-    if sample.isBackground and not sample.systematic:
+    if sample.isMC and not sample.systematic:
         for systematic in systematics:
             s=sample.clone(sample.name+'_'+systematic)
             s.systematic=systematic
             s.inputDir=s.inputDir.replace('nominal',systematic.replace('Up','_up').replace('Down','_down'))
+            if s.isSignal: s.inputDir+='/'+s.fileIdentifier+'_lumiWeighted'
             systematicSamples.append(s)
 
 allSamples+=systematicSamples

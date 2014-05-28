@@ -25,7 +25,7 @@ else:
 if len(argv)>2:
     inputDir=argv[2]
 else:
-    inputDir='/eos/uscms/store/user/lpcmbja/noreplica/jstupak/step4/2014_5_4'   #Step 4
+    inputDir='/eos/uscms/store/user/lpcmbja/noreplica/jstupak/step4/2014_5_13'   #Step 4
     #inputDir='/eos/uscms/store/user/sethzenz/fromdcache' #Step 3
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -33,17 +33,17 @@ else:
 
 DEBUG=False
 
+fillEmptyBins=True
 blind=True
-
 applyNormSFs=True
-
 unrolld2D=True
+doBDT=True
 
 doCutTable=False
 doTheta=False
-makeDataCard=False
+makeDataCard=True
 
-doAllSys=False
+doAllSys=True
 doJECSys=False
 doJERSys=False
 doBTagSys=False
@@ -61,19 +61,28 @@ doCuts=[
     ]
 
 doVtypes=[
-    #2,
+    2,
     3
     ]
 
 doBoosts=[
     #'low',
-    #'med',
+    'med',
     'high'
     ]
 
-BDTStitching='((1+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*(BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4<0))+((3+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>0)*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4<0)))+((5+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>0)*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4>0)*(BDT_8TeV_H125Sig_VVBkg_newCuts4<0)))+((7+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>0)*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4>0)*(BDT_8TeV_H125Sig_VVBkg_newCuts4>0)))'
-MELA_SMvPS='(1E-9*MELA_PS)/(MELA_SM + (1E-9*MELA_PS))'  #This arbitrary factor needs to be optimized
-MELA_SMvHO='(1E-9*MELA_HO)/(MELA_SM + (1E-9*MELA_HO))'  #This arbitrary factor needs to be optimized
+offset=1; cutTTbar=-0.35; cutWJet=0.0; cutVV=0.2
+BDTMax=3+cutTTbar+cutWJet+cutVV+2
+BDTStitching="""(({3}+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*(BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4<{0}))+\
+((1+{3}+{0}+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>{0})*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4<{1})))+\
+((2+{3}+{0}+{1}+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>{0})*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4>{1})*(BDT_8TeV_H125Sig_VVBkg_newCuts4<{2})))+\
+((3+{3}+{0}+{1}+{2}+BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4)*((BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4>{0})*(BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4>{1})*(BDT_8TeV_H125Sig_VVBkg_newCuts4>{2})))\
+""".format(cutTTbar,cutWJet,cutVV,offset)
+
+kPS=3E-8
+kHO=1E-7
+MELA_SMvPS='({0}*MELA_PS)/(MELA_SM + ({0}*MELA_PS))'.format(kPS)  #This arbitrary factor needs to be optimized
+MELA_SMvHO='({0}*MELA_HO)/(MELA_SM + ({0}*MELA_HO))'.format(kHO)  #This arbitrary factor needs to be optimized
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -137,30 +146,46 @@ if __name__=='__main__':
                     plots+=[Plot(name='dummy',distribution='H.pt',nBinsX=1,xMin=0,xMax=500000,cuts=cuts,Vtype=Vtype,boost=boost)]
                 elif doTheta or makeDataCard:
                     plots+=[
-                        Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',binsX=[0]+range(300,700,25)+range(700,1001,100),xTitle='m(Vh) [GeV]',binsY=[0,50]+range(75,175,10)+range(175,251,25),yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
-                        #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',nBinsX=20,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',nBinsY=20,yMin=0,yMax=500,yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
-                        #Plot(name='h_mass',distribution='H.mass',nBinsX=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
-                        #Plot(name='x_mVH',distribution='x_mVH',nBinsX=40,xMin=0,xMax=1200,xTitle='m(VH) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)  
+                        #Plot(name='h_mass',distribution='H.mass',nBinsX=25,xMin=0,xMax=500,xTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_mVH',distribution='x_mVH',nBinsX=40,xMin=0,xMax=1200,xTitle='m(VH) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        
+                        #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',binsX=[0]+range(300,700,25)+range(700,1001,100)+[1200],xTitle='m(Vh) [GeV]',binsY=[0,50]+range(75,175,10)+range(175,251,25),yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',nBinsX=20,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',nBinsY=20,yMin=0,yMax=500,yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)                    
+                        
+                        #Plot(name='BDT_8TeV_H125Sig_NewTTbarBkg',distribution='BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='BDT_8TeV_H125Sig_0b1b2bWjetsBkg',distribution='BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='BDT_8TeV_H125Sig_VVBkg',distribution='BDT_8TeV_H125Sig_VVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='allBDTs',distribution=BDTStitching,nBinsX=60,xMin=0,xMax=BDTMax,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        
+                        Plot(name='mainBDT_v_VstarMass',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4:x_mVH',binsX=[200,400,450,500,550,600,700,850,1200],xTitle='m(Vh) [GeV]',binsY=[-1,-0.4,-0.2,0,0.1,0.2,1],yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='mainBDT_v_VstarMass',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4:x_mVH',nBinsX=15,xMin=200,xMax=1200,xTitle='m(Vh) [GeV]',nBinsY=25,yMin=-1,yMax=1,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='allBDTs_v_VstarMass',distribution=BDTStitching+':x_mVH',                                   nBinsX=15,xMin=200,xMax=1200,xTitle='m(Vh) [GeV]',nBinsY=40,yMin=0,yMax=BDTMax,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         ]
                 else:
                     plots+=[
+                        #Plot(name='BDT_8TeV_H125Sig_NewTTbarBkg',distribution='BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='BDT_8TeV_H125Sig_0b1b2bWjetsBkg',distribution='BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='BDT_8TeV_H125Sig_VVBkg',distribution='BDT_8TeV_H125Sig_VVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='allBDTs',distribution=BDTStitching,nBinsX=60,xMin=0,xMax=BDTMax,xTitle='BDT',yLog=True,cuts=cuts,Vtype=Vtype,boost=boost),
+
+                        #Plot(name='MELA_SM',          distribution='MELA_SM',nBinsX=25,xMin=0,xMax=.015, xTitle='L(0^{+})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='MELA_SM_smallXMax',distribution='MELA_SM',nBinsX=25,xMin=0,xMax=.003, xTitle='L(0^{+})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='MELA_PS',          distribution='MELA_PS',nBinsX=25,xMin=0,xMax=50000,xTitle='L(0^{-})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='MELA_HO_smallXMax',distribution='MELA_HO',nBinsX=25,xMin=0,xMax=10000,xTitle='L(0^{+}_{HO})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='MELA_HO',          distribution='MELA_HO',nBinsX=25,xMin=0,xMax=20000,xTitle='L(0^{+}_{HO})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        
+                        #Plot(name='MELA_SMvPS',distribution=MELA_SMvPS,nBinsX=25,xMin=0,xMax=1, xTitle='L(0^{-})/(L(0^{+})+L(0^{-}))',          yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='MELA_SMvHO',distribution=MELA_SMvHO,nBinsX=25,xMin=0,xMax=1, xTitle='L(0^{+}_{HO})/(L(0^{+})+L(0^{+}_{HO}))',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                                                
                         #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',nBinsX=25,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',nBinsY=25,yMin=0,yMax=500,yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         #Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',binsX=[0]+range(300,700,25)+range(700,1001,100),xTitle='m(Vh) [GeV]',binsY=[0,50]+range(75,175,10)+range(175,251,25),yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
 
-                        Plot(name='BDT_8TeV_H125Sig_NewTTbarBkg',distribution='BDT_8TeV_H125Sig_NewTTbarBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='BDT_8TeV_H125Sig_0b1b2bWjetsBkg',distribution='BDT_8TeV_H125Sig_0b1b2bWjetsBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='BDT_8TeV_H125Sig_VVBkg',distribution='BDT_8TeV_H125Sig_VVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4',nBinsX=25,xMin=-1,xMax=1,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='allBDTs',distribution=BDTStitching,nBinsX=60,xMin=0,xMax=8,xTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-
-                        Plot(name='MELA_SM',distribution='MELA_SM',nBinsX=25,xMin=0,xMax=.025, xTitle='L(0^{+})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='MELA_PS',distribution='MELA_PS',nBinsX=25,xMin=0,xMax=50000,xTitle='L(0^{-})',     yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='MELA_HO',distribution='MELA_HO',nBinsX=25,xMin=0,xMax=30000,xTitle='L(0^{+}_{HO})',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-
-                        Plot(name='MELA_SMvPS',distribution=MELA_SMvPS,nBinsX=25,xMin=0,xMax=1, xTitle='L(0^{-})/(L(0^{+})+L(0^{-}))',          yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        Plot(name='MELA_SMvHO',distribution=MELA_SMvHO,nBinsX=25,xMin=0,xMax=1, xTitle='L(0^{+}_{HO})/(L(0^{+})+L(0^{+}_{HO}))',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                                                
-                        Plot(name='allBDTs_v_VstarMass',distribution=BDTStitching+':x_mVH',nBinsX=10,xMin=200,xMax=1200,xTitle='m(Vh) [GeV]',nBinsY=60,yMin=0,yMax=8,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        Plot(name='hMass_v_VstarMass',distribution='H.mass:x_mVH',nBinsX=20,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',nBinsY=20,yMin=0,yMax=500,yTitle='m(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost)
+                        #Plot(name='mainBDT_v_VstarMass',distribution='BDT_8TeV_H125Sig_LFHFWjetsNewTTbarVVBkg_newCuts4:x_mVH',nBinsX=15,xMin=200,xMax=1200,xTitle='m(Vh) [GeV]',nBinsY=25,yMin=-1,yMax=1,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='allBDTs_v_VstarMass',distribution=BDTStitching+':x_mVH',                                   nBinsX=15,xMin=200,xMax=1200,xTitle='m(Vh) [GeV]',nBinsY=40,yMin=0,yMax=BDTMax,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='allBDTs_v_MELA_SMvPS',distribution=BDTStitching+':'+MELA_SMvPS,nBinsX=15,xMin=0,xMax=1, xTitle='L(0^{-})/(L(0^{+})+L(0^{-}))',nBinsY=40,yMin=0,yMax=BDTMax,yTitle='BDT',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         
                         #Plot(name='nPVs',distribution='nPVs',nBinsX=60,xMin=0,xMax=60,xTitle='nPVs',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         #Plot(name='h_pT',distribution='H.pt',nBinsX=25,xMin=0,xMax=500,xTitle='p_{T}(h) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
@@ -183,7 +208,7 @@ if __name__=='__main__':
                         #Plot(name='x_phi',distribution='x_phi',nBinsX=20,xMin=-3.3,xMax=3.3,xTitle='#phi',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         #Plot(name='x_costhetastar',distribution='x_costhetastar',nBinsX=20,xMin=0,xMax=1,xTitle='Cos(#theta*)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         #Plot(name='x_phi1',distribution='x_phi1',nBinsX=20,xMin=-3.3,xMax=3.3,xTitle='#phi_{1}',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
-                        #Plot(name='x_mVh',distribution='x_mVH',nBinsX=25,xMin=0,xMax=1000,xTitle='m(Vh) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
+                        #Plot(name='x_mVh',distribution='x_mVH',nBinsX=25,xMin=0,xMax=1200,xTitle='m(Vh) [GeV]',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         #Plot(name='x_rapidityVh',distribution='x_rapidityVH',nBinsX=20,xMin=-3,xMax=3,xTitle='y(Vh)',yLog=False,cuts=cuts,Vtype=Vtype,boost=boost),
                         ]
 

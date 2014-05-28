@@ -15,8 +15,26 @@ def contains(a, b):
 
 ##############################################################################
 
+def fillBins(h):
+    epsilon=1E-4
+    
+    if type(h)==type(TH1F()):
+        for xBin in range(0,h.GetNbinsX()+2):
+            if h.GetBinContent(xBin)<epsilon:
+                h.SetBinContent(xBin,epsilon)
+                h.SetBinError(xBin,epsilon)
+    else:
+        for xBin in range(0,h.GetNbinsX()+2):
+            for yBin in range(0,h.GetNbinsY()+2):
+                if h.GetBinContent(xBin,yBin)<epsilon:
+                    h.SetBinContent(xBin,yBin,epsilon)
+                    h.SetBinError(xBin,yBin,epsilon)
+                
+##############################################################################            
+            
 def unroll(h):
-
+    if type(h)==type(TH1F()): return h
+    
     nX=h.GetNbinsX()+2
     nY=h.GetNbinsY()+2
 

@@ -7,6 +7,7 @@ from sys import argv
 # This script makes separate dataCards for 0P, 0M, and 50/50 mix for simple limit setting.
 # Usage: python makeAllDataCards.py <inputDir>
 # <inputDir> should contain a 'yields.p' pickle file from which a dataCard can be constructed.
+#
 ###############################################################################################
 
 try: inputDir=argv[1]

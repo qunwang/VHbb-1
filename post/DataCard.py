@@ -1,9 +1,13 @@
 from utils import printTable
 import pickle
 
-defaultDistribution='h_mass_mjj'
+#defaultDistribution='hMass_v_VstarMass_bdt'
+#defaultDistribution='allBDTs_v_VstarMass_bdt'
+#defaultDistribution='mainBDT_v_VstarMass_bdt'
+
+#defaultDistribution='h_mass_mjj'
 #defaultDistribution='x_mVH_mjj'
-#defaultDistribution='h_mass_bdt'
+defaultDistribution='h_mass_bdt'
 #defaultDistribution='x_mVH_bdt'
 
 defaultSignalNames=['Wh_125p6_0P','Wh_125p6_0M']
@@ -45,14 +49,10 @@ flatSystematics=[('lumi',{'Wh_125p6_0P':lumiSys,'Wh_125p6_0M':lumiSys,'ZJets':lu
 
 #FIX ME - we need systematic samples for signal
 one='1'
-shapeSystematics=[('JEC',{#'Wh_125p6_0P':one,'Wh_125p6_0M':one,
-    'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
-                  ('JER',{#'Wh_125p6_0P':one,'Wh_125p6_0M':one,
-    'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
-                  ('btag',{#'Wh_125p6_0P':one,'Wh_125p6_0M':one,
-    'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
-                  ('mistag',{#'Wh_125p6_0P':one,'Wh_125p6_0M':one,
-    'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
+shapeSystematics=[('JEC',{'Wh_125p6_0P':one,'Wh_125p6_0M':one,'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
+                  ('JER',{'Wh_125p6_0P':one,'Wh_125p6_0M':one,'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
+                  ('btag',{'Wh_125p6_0P':one,'Wh_125p6_0M':one,'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
+                  ('mistag',{'Wh_125p6_0P':one,'Wh_125p6_0M':one,'W_light':one,'W_b':one,'W_bb':one,'ZJets':one,'ttbar':one,'singleTop':one,'QCD':one,'VZ':one,'VV':one}),
                   ('stat_0P',{'Wh_125p6_0P':one}),
                   ('stat_0M',{'Wh_125p6_0M':one}),
                   ('stat_W_light',{'W_light':one}),

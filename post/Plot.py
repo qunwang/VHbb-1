@@ -22,6 +22,7 @@ if not os.path.isdir(outputDir): os.system("mkdir -p "+outputDir)
 output=TFile(outputDir+'/plots.root',"RECREATE")
 
 TH1.SetDefaultSumw2(True)
+TGaxis.SetMaxDigits(3)
 
 class Plot:
 
@@ -109,7 +110,7 @@ class Plot:
             print sample.name
             
             if self.skip(sample): continue
-        
+
             sample.setInputList(inputDir)
             sample.makeTChain(treeName)
                         
@@ -131,6 +132,10 @@ class Plot:
                 if isEqual(sample.type,'WJets'): weight+=' * weightWpt_WJets'
                 if isEqual(sample.type,'ttbar'): weight+=' * weightWpt_TTbar'
                 weight+=' * weightEleTrigger'
+
+                if doBDT:
+                    weight+=' * 2'
+                    theCuts+=' && EVENT.event%2==0'
 
                 if sample.isSignal:
                     #weight+=' * weightSignalEWK'
@@ -197,11 +202,14 @@ class Plot:
                 sys.stdout = stdout_old
                 logFile.close()
                 if DEBUG: print sample.h.Integral()
-            
+
             if showOverflow: self.overflow(sample.h)
 
             if sample.isMC: sample.h.Scale(self.lumi)
             yields[sample.name]=self.integral(sample.h) #for cutflow table
+
+            if makeDataCard and fillEmptyBins:
+                if sample.isBackground: fillBins(sample.h)
 
         #Make histograms for background combinations and fill yield table
         for sample in samples:
@@ -373,16 +381,16 @@ class Plot:
         self.pull.Draw("HIST")
 
     #---------------------------------------------------------------------------------------------------------------------------------------------------------
-        
+
     def Write(self):
 
-        if self.is1D:
-            output.cd()
-            self.canvas.Write()
-            self.canvas.SaveAs(outputDir+'/'+self.name+'.pdf')
-            self.canvas.SaveAs(outputDir+'/'+self.name+'.eps')
-            self.canvas.SaveAs(outputDir+'/'+self.name+'.png')
-        elif makeDataCard and unrolld2D:
+        output.cd()
+        self.canvas.Write()
+        self.canvas.SaveAs(outputDir+'/'+self.name+'.pdf')
+        self.canvas.SaveAs(outputDir+'/'+self.name+'.eps')
+        self.canvas.SaveAs(outputDir+'/'+self.name+'.png')
+
+        if makeDataCard and unrolld2D:
             for sample in allSamples:
                 if self.skip(sample): continue
                 sample.h=unroll(sample.h)
@@ -424,19 +432,11 @@ class Plot:
                 statUp=sample.h.Clone(sample.h.GetName()+'_stat_'+name+'Up')
                 statDown=sample.h.Clone(sample.h.GetName()+'_stat_'+name+'Down')
 
-                if self.is1D:
-                    for binNo in range(0,self.nBinsX+2):
-                        nominal=sample.h.GetBinContent(binNo)
-                        unc=sample.h.GetBinError(binNo)
-                        statUp.SetBinContent(binNo,nominal+unc)
-                        statDown.SetBinContent(binNo,max(0,nominal-unc))
-                else:
-                    for xBinNo in range(0,self.nBinsX+2):
-                        for yBinNo in range(0,self.nBinsY+2):
-                            nominal=sample.h.GetBinContent(xBinNo,yBinNo)
-                            unc=sample.h.GetBinError(xBinNo,yBinNo)
-                            statUp.SetBinContent(xBinNo,yBinNo,nominal+unc)
-                            statDown.SetBinContent(xBinNo,yBinNo,max(0,nominal-unc))
+                for binNo in range(0,sample.h.GetNbinsX()+2):   #already unrolled
+                    nominal=sample.h.GetBinContent(binNo)
+                    unc=sample.h.GetBinError(binNo)
+                    statUp.SetBinContent(binNo,nominal+unc)
+                    statDown.SetBinContent(binNo,max(0,nominal-unc))
                 statUp.Write()
                 statDown.Write()
 
@@ -445,19 +445,12 @@ class Plot:
                 h=self.extraHists[histName]
                 statUp=h.Clone(h.GetName()+'_stat_'+histName+'Up')
                 statDown=h.Clone(h.GetName()+'_stat_'+histName+'Down')
-                if self.is1D:
-                    for binNo in range(0,self.nBinsX+2):
-                        nominal=h.GetBinContent(binNo)
-                        unc=h.GetBinError(binNo)
-                        statUp.SetBinContent(binNo,nominal+unc)
-                        statDown.SetBinContent(binNo,max(0,nominal-unc))
-                else:
-                    for xBinNo in range(0,self.nBinsX+2):
-                        for yBinNo in range(0,self.nBinsY+2):
-                            nominal=h.GetBinContent(xBinNo,yBinNo)
-                            unc=h.GetBinError(xBinNo,yBinNo)
-                            statUp.SetBinContent(xBinNo,yBinNo,nominal+unc)
-                            statDown.SetBinContent(xBinNo,yBinNo,max(0,nominal-unc))
+
+                for binNo in range(0,sample.h.GetNbinsX()+2):   #already unrolled
+                    nominal=h.GetBinContent(binNo)
+                    unc=h.GetBinError(binNo)
+                    statUp.SetBinContent(binNo,nominal+unc)
+                    statDown.SetBinContent(binNo,max(0,nominal-unc))
                             
                 if ('ttbar' in histName) or 'WJets' in histName:   #this is not a bug - JS3
                     statUp.Scale(self.integral(h)/self.integral(statUp))

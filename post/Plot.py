@@ -465,13 +465,8 @@ class Plot:
                             nominal=self.extraHists[sampleName]
                             up=self.extraHists[sampleName+'_WJetsShapeUp']
                             down=up.Clone(up.GetName().replace('Up','Down'))
-                            if self.is1D:
-                                for binNo in range(0,self.nBinsX+2):
-                                    down.SetBinContent(binNo,max(0,nominal.GetBinContent(binNo)-(up.GetBinContent(binNo)-nominal.GetBinContent(binNo))))
-                            else:
-                                for xBinNo in range(0,self.nBinsX+2):
-                                    for yBinNo in range(0,self.nBinsY+2):
-                                        down.SetBinContent(xBinNo,yBinNo,max(0,nominal.GetBinContent(xBinNo,yBinNo)-(up.GetBinContent(xBinNo,yBinNo)-nominal.GetBinContent(xBinNo,yBinNo))))
+                            for binNo in range(0,sample.h.GetNbinsX()+2):   #already unrolled    
+                                down.SetBinContent(binNo,max(0,nominal.GetBinContent(binNo)-(up.GetBinContent(binNo)-nominal.GetBinContent(binNo))))
                             down.Scale(self.integral(nominal)/self.integral(down))
                             down.Write()
                 
@@ -480,13 +475,8 @@ class Plot:
                         nominal=self.extraHists['ttbar']
                         up=self.extraHists['ttbar_ttbarShapeUp']
                         down=up.Clone(up.GetName().replace('Up','Down'))
-                        if self.is1D:
-                            for binNo in range(0,self.nBinsX+2):
-                                down.SetBinContent(binNo,max(0,nominal.GetBinContent(binNo)-(up.GetBinContent(binNo)-nominal.GetBinContent(binNo))))
-                        else:
-                            for xBinNo in range(0,self.nBinsX+2):
-                                for yBinNo in range(0,self.nBinsY+2):
-                                    down.SetBinContent(xBinNo,yBinNo,max(0,nominal.GetBinContent(xBinNo,yBinNo)-(up.GetBinContent(xBinNo,yBinNo)-nominal.GetBinContent(xBinNo,yBinNo))))
+                        for binNo in range(0,sample.h.GetNbinsX()+2):   #already unrolled    
+                            down.SetBinContent(binNo,max(0,nominal.GetBinContent(binNo)-(up.GetBinContent(binNo)-nominal.GetBinContent(binNo))))
                         down.Scale(self.integral(nominal)/self.integral(down))
                         down.Write()
 

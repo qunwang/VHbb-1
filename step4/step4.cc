@@ -109,9 +109,13 @@ void step4::Loop(){
       
       if (Cut(ientry) != 1) continue;  //Pre-selection
 
+      //correction for b-jet energy regression
+      hJet_e[0] *= hJet_ptCorr[0]/hJet_pt[0]; 
+      hJet_e[1] *= hJet_ptCorr[1]/hJet_pt[1];
+
       //Get the 4-vect of Hbb, Wlv                                                                                                                                                              
-      bjet0.SetPtEtaPhiE(hJet_pt[0],hJet_eta[0], hJet_phi[0],hJet_e[0]);
-      bjet1.SetPtEtaPhiE(hJet_pt[1],hJet_eta[1], hJet_phi[1],hJet_e[1]);
+      bjet0.SetPtEtaPhiE(hJet_ptCorr[0],hJet_eta[0], hJet_phi[0],hJet_e[0]);
+      bjet1.SetPtEtaPhiE(hJet_ptCorr[1],hJet_eta[1], hJet_phi[1],hJet_e[1]);
 
       chargelep.SetPtEtaPhiM(vLepton_pt[0], vLepton_eta[0], vLepton_phi[0], vLepton_mass[0]);
       if(vLepton_type[0]==11){ lep_type="electron";}

@@ -1208,7 +1208,7 @@ Int_t step4::Cut(Long64_t entry)
   return 1;
 }
 
-TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met,TString lep_type, Int_t diffMode=0);//diffMode: different neutrino vz 
+TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met,TString lep_type, Int_t method=0, Int_t diffModeR=0, Int_t diffModeC=0, Int_t scaleMETpt=true);//diffMode: different neutrino vz 
 void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector thep4M11, TLorentzVector thep4M12, TLorentzVector thep4Z2, TLorentzVector thep4M21, TLorentzVector thep4M22, double& costheta1, double& costheta2, double& Phi, double& costhetastar, double& Phi1, double& Phi2);
 
 #endif // #ifdef step4_cxx

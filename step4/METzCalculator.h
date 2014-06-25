@@ -48,7 +48,7 @@ class METzCalculator {
 	/// type = 2: if real roots, choose the most central solution.
 	///           if complex roots, use only the real part.
 	/// type = 3: if real roots, pick the largest value of the cosine*
-	double Calculate(int type = 0);
+	double Calculate(int method, int typeR = 0, int typeC = 0); //##//
     /// check for complex root
 	bool IsComplex() const { return isComplex_; };
 	double getOther() const { return otherSol_; };

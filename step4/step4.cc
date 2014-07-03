@@ -181,9 +181,9 @@ void step4::Loop(){
       x_rapidityVH = (float) p4_VH.Rapidity();
 
       //float mH_, float costheta1_, float costheta2_, float phi_, float m_, float Y_, bool withAcc = false, int signalNo
-      MELA_SM=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 0);
-      MELA_PS=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 1);
-      MELA_HO=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 2);
+      MELA_SM=KDCalc->getLikelihood(p4_Hbb.M(), x_costheta1, x_costheta2, x_phi, p4_VH.M(), p4_VH.Rapidity(), false, 0);
+      MELA_PS=KDCalc->getLikelihood(p4_Hbb.M(), x_costheta1, x_costheta2, x_phi, p4_VH.M(), p4_VH.Rapidity(), false, 1);
+      MELA_HO=KDCalc->getLikelihood(p4_Hbb.M(), x_costheta1, x_costheta2, x_phi, p4_VH.M(), p4_VH.Rapidity(), false, 2);
       
       //W pT Reweighting
       double wptslope = -1.057e-03;

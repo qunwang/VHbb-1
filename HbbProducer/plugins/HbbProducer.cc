@@ -62,7 +62,7 @@ private:
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
   edm::InputTag _rhoSource;
-  edm::InputTag _ak4Source, _ak8Source, _ak10Source, _ak12Source, _ak15Source;
+  edm::InputTag _AK4Source, _AK8Source, _AK10Source, _AK12Source, _AK15Source;
   
   Hbb::Tuple _output;
   
@@ -86,11 +86,11 @@ HbbProducer::HbbProducer(const edm::ParameterSet& iConfig)
 {
   
   _rhoSource=edm::InputTag(iConfig.getParameter<edm::InputTag>("rhoSource"));
-  _ak4Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak4Source"));
-  _ak8Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak8Source"));
-  _ak10Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak10Source"));
-  _ak12Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak12Source"));
-  _ak15Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak15Source"));
+  _AK4Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK4Source"));
+  _AK8Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK8Source"));
+  _AK10Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK10Source"));
+  _AK12Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK12Source"));
+  _AK15Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK15Source"));
 
   //register your products
   produces<Hbb::Tuple>();
@@ -121,28 +121,28 @@ HbbProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   map< string, h_patJets > fatJetInputs=map< string, h_patJets >();
   map< string, v_HbbJets* > fatJetOutputs=map< string, v_HbbJets* >();
 
-  h_patJets ak4jets;
-  iEvent.getByLabel(_ak4Source,ak4jets);
+  h_patJets AK4jets;
+  iEvent.getByLabel(_AK4Source,AK4jets);
 
-  h_patJets ak8jets;
-  iEvent.getByLabel(_ak8Source,ak8jets);
-  fatJetInputs.insert(pair<string,h_patJets >(string("ak8"),ak8jets));
-  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak8"),&_output.ak8PFCHS));
+  h_patJets AK8jets;
+  iEvent.getByLabel(_AK8Source,AK8jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("AK8"),AK8jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("AK8"),&_output.AK8PFCHS));
 
-  h_patJets ak10jets;
-  iEvent.getByLabel(_ak10Source,ak10jets);
-  fatJetInputs.insert(pair<string,h_patJets >(string("ak10"),ak10jets));
-  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak10"),&_output.ak10PFCHS));
+  h_patJets AK10jets;
+  iEvent.getByLabel(_AK10Source,AK10jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("AK10"),AK10jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("AK10"),&_output.AK10PFCHS));
   
-  h_patJets ak12jets;
-  iEvent.getByLabel(_ak12Source,ak12jets);
-  fatJetInputs.insert(pair<string,h_patJets >(string("ak12"),ak12jets));
-  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak12"),&_output.ak12PFCHS));
+  h_patJets AK12jets;
+  iEvent.getByLabel(_AK12Source,AK12jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("AK12"),AK12jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("AK12"),&_output.AK12PFCHS));
   
-  h_patJets ak15jets;
-  iEvent.getByLabel(_ak15Source,ak15jets);
-  fatJetInputs.insert(pair<string,h_patJets >(string("ak15"),ak15jets));
-  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak15"),&_output.ak15PFCHS));
+  h_patJets AK15jets;
+  iEvent.getByLabel(_AK15Source,AK15jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("AK15"),AK15jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("AK15"),&_output.AK15PFCHS));
 
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -156,14 +156,22 @@ HbbProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(auto inputJet=inputJets->begin(); inputJet!=inputJets->end(); ++inputJet){
       Hbb::Jet jet=Hbb::Jet();
       jet.lv.SetPtEtaPhiM(inputJet->pt(), inputJet->eta(), inputJet->phi(), inputJet->mass());
-      //jet.tau1=inputJet->userFloat("NjettinessAK8:tau1");
-      //jet.tau2=inputJet->userFloat("NjettinessAK8:tau2");
-      //jet.tau3=inputJet->userFloat("NjettinessAK8:tau3");
+
+      jet.tau1=inputJet->userFloat((string("Njettiness")+string(name)+string(":tau1")).c_str());
+      jet.tau2=inputJet->userFloat((string("Njettiness")+string(name)+string(":tau2")).c_str());
+      jet.tau3=inputJet->userFloat((string("Njettiness")+string(name)+string(":tau3")).c_str());
+
+      jet.prunedMass=inputJet->userFloat((string(name)+string("PFJetsCHSPrunedLinks")).c_str());
+      jet.trimmedMass=inputJet->userFloat((string(name)+string("PFJetsCHSTrimmedLinks")).c_str());
+      jet.filteredMass=inputJet->userFloat((string(name)+string("PFJetsCHSFilteredLinks")).c_str());
+
+      jet.qJetsVolatility=inputJet->userFloat((string("QJetsAdder")+string(name)+string(":QjetsVolatility")).c_str());
+      
       outputJets.push_back(jet);
     }
     *fatJetOutputs[name]=outputJets;
   }
-
+  
   auto_ptr<Hbb::Tuple> pOut(new Hbb::Tuple(_output));
   iEvent.put(pOut);
 

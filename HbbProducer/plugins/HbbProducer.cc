@@ -32,6 +32,13 @@
 #include <DataFormats/PatCandidates/interface/Jet.h>
 
 #include <vector>
+#include <memory>
+
+using namespace std;
+
+typedef edm::Handle< edm::View< pat::Jet > > h_patJets;
+typedef vector<Hbb::Jet> v_HbbJets;
+//typedef auto_ptr< v_HbbJets > p_v_HbbJets;
 
 //
 // class declaration
@@ -55,9 +62,9 @@ private:
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
   edm::InputTag _rhoSource;
-  edm::InputTag _jetSource;
+  edm::InputTag _ak4Source, _ak8Source, _ak10Source, _ak12Source, _ak15Source;
   
-  HbbTuple _output;
+  Hbb::Tuple _output;
   
   
   // ----------member data ---------------------------
@@ -79,10 +86,14 @@ HbbProducer::HbbProducer(const edm::ParameterSet& iConfig)
 {
   
   _rhoSource=edm::InputTag(iConfig.getParameter<edm::InputTag>("rhoSource"));
-  _jetSource=edm::InputTag(iConfig.getParameter<edm::InputTag>("jetSource"));
+  _ak4Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak4Source"));
+  _ak8Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak8Source"));
+  _ak10Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak10Source"));
+  _ak12Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak12Source"));
+  _ak15Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("ak15Source"));
 
   //register your products
-  produces<HbbTuple>();
+  produces<Hbb::Tuple>();
 }
 
 
@@ -107,16 +118,53 @@ HbbProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<double> rho;
   iEvent.getByLabel(_rhoSource,rho);
 
-  edm::Handle<edm::View<pat::Jet>> jets;
-  iEvent.getByLabel(_jetSource,jets);
+  map< string, h_patJets > fatJetInputs=map< string, h_patJets >();
+  map< string, v_HbbJets* > fatJetOutputs=map< string, v_HbbJets* >();
+
+  h_patJets ak4jets;
+  iEvent.getByLabel(_ak4Source,ak4jets);
+
+  h_patJets ak8jets;
+  iEvent.getByLabel(_ak8Source,ak8jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("ak8"),ak8jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak8"),&_output.ak8PFCHS));
+
+  h_patJets ak10jets;
+  iEvent.getByLabel(_ak10Source,ak10jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("ak10"),ak10jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak10"),&_output.ak10PFCHS));
+  
+  h_patJets ak12jets;
+  iEvent.getByLabel(_ak12Source,ak12jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("ak12"),ak12jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak12"),&_output.ak12PFCHS));
+  
+  h_patJets ak15jets;
+  iEvent.getByLabel(_ak15Source,ak15jets);
+  fatJetInputs.insert(pair<string,h_patJets >(string("ak15"),ak15jets));
+  fatJetOutputs.insert(pair<string, v_HbbJets* >(string("ak15"),&_output.ak15PFCHS));
+
+  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
   _output.rho=*rho;
 
-  for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
-    //std::cout<<jet->pt()<<std::endl;
+  for(auto fatJetCollection=fatJetInputs.begin(); fatJetCollection!=fatJetInputs.end(); ++fatJetCollection){
+    string name=fatJetCollection->first;
+    h_patJets inputJets=fatJetCollection->second;
+
+    v_HbbJets outputJets;
+    for(auto inputJet=inputJets->begin(); inputJet!=inputJets->end(); ++inputJet){
+      Hbb::Jet jet=Hbb::Jet();
+      jet.lv.SetPtEtaPhiM(inputJet->pt(), inputJet->eta(), inputJet->phi(), inputJet->mass());
+      //jet.tau1=inputJet->userFloat("NjettinessAK8:tau1");
+      //jet.tau2=inputJet->userFloat("NjettinessAK8:tau2");
+      //jet.tau3=inputJet->userFloat("NjettinessAK8:tau3");
+      outputJets.push_back(jet);
+    }
+    *fatJetOutputs[name]=outputJets;
   }
 
-  std::auto_ptr<HbbTuple> pOut(new HbbTuple(_output));
+  auto_ptr<Hbb::Tuple> pOut(new Hbb::Tuple(_output));
   iEvent.put(pOut);
 
 }

@@ -1,8 +1,23 @@
 <lcgdict>
-  <class name="HbbTuple" ClassVersion="10">
-    <version ClassVersion="10" checksum="904722010"/>
+  <class name="Hbb::Tuple" ClassVersion="10">
+    <version ClassVersion="10" checksum="26500717"/>
   </class>
-  <class name="std::vector<HbbTuple>"/>
-  <class pattern="edm::Wrapper<HbbTuple>"/>
-  <class name="edm::Wrapper<std::vector<HbbTuple> >"/>
+  <class name="std::vector<Hbb::Tuple>"/>
+  <class pattern="edm::Wrapper<Hbb::Tuple>"/>
+  <class name="edm::Wrapper<std::vector<Hbb::Tuple> >"/>
+
+  <class name="Hbb::Object" ClassVersion="10">
+    <version ClassVersion="10" checksum="514186134"/>
+  </class>
+  <class name="std::vector<Hbb::Object>"/>
+  <class pattern="edm::Wrapper<Hbb::Object>"/>
+  <class name="edm::Wrapper<std::vector<Hbb::Object> >"/>
+
+  <class name="Hbb::Jet" ClassVersion="10">
+    <version ClassVersion="10" checksum="879736775"/>
+  </class>
+  <class name="std::vector<Hbb::Jet>"/>
+  <class pattern="edm::Wrapper<Hbb::Jet>"/>
+  <class name="edm::Wrapper<std::vector<Hbb::Jet> >"/>
+
 </lcgdict>

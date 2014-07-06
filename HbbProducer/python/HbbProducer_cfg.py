@@ -1,28 +1,67 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Hbb")
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.options.allowUnscheduled = cms.untracked.bool(True)
-
-process.load("FWCore.MessageService.MessageLogger_cfi")
+process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
+                                     allowUnscheduled = cms.untracked.bool(True) 
+                                     )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:/eos/uscms/store/user/jstupak/ZH_HToBB_ZToLL_M-125_13TeV_powheg-herwigpp/Spring14dr-PU_S14_POSTLS170_V6AN1-v1/140622_185946/0000/miniAOD-prod_PAT_1.root'
                                                               )
                             )
 
+theGlobalTag='PLS170_V6AN1::All'
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+
 process.load('VHbb.HbbProducer.HbbProducer_cfi')
+
+#####################################################################################################################################
 
 process.load('PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START70_V6::All'
+process.GlobalTag.globaltag = theGlobalTag
 
 process.chs = cms.EDFilter('CandPtrSelector', src = cms.InputTag('packedPFCandidates'), cut = cms.string('fromPV'))
+
+
+#2012 Tight muon: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Tight_Muon
+#missing dZ cut - JS
+process.selectedMuons = cms.EDFilter("PATMuonSelector",
+                                     src = cms.InputTag("slimmedMuons"),
+                                     cut = cms.string('pt > 20. &'
+                                                      'abs(eta) < 2.4 &'
+                                                      'isGlobalMuon &'
+                                                      'isPFMuon &'
+                                                      'globalTrack.normalizedChi2 < 10.0 &'
+                                                      'globalTrack.hitPattern.numberOfValidMuonHits > 0 &'
+                                                      'numberOfMatchedStations > 1 &'
+                                                      'abs(dB) < 0.02 &'
+                                                      'innerTrack.hitPattern.numberOfValidPixelHits > 0 &'
+                                                      'innerTrack.hitPattern.trackerLayersWithMeasurement > 5'
+                                                      )
+                                     )
+
+#process.muonMatch.match='packedGenParticles'
+
+"""
+process.selectedMuons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedMuons"), cut = cms.string('pt > 20. &'
+                                                                                                             'abs(eta) < 2.4 &'
+                                                                                                             'isGlobalMuon &' 
+                                                                                                             'isPFMuon &'
+                                                                                                             'globalTrack.normalizedChi2 < 10.0 &'
+                                                                                                             'globalTrack.hitPattern.numberOfValidMuonHits > 0 &'
+                                                                                                             'numberOfMatchedStations > 1 &'
+                                                                                                             'abs(dB) < 0.02 &'
+                                                                                                             'innerTrack.hitPattern.numberOfValidPixelHits > 0 &'
+                                                                                                             'innerTrack.hitPattern.trackerLayersWithMeasurement > 5'
+                                                                                                             ))
+"""
+#process.selectedElectrons = cms.EDFilter("CandPtrSelector", src = cms.InputTag("slimmedElectrons"), cut = cms.string("your selection for ele"))
 
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.load('RecoJets.Configuration.RecoGenJets_cff')
@@ -69,7 +108,7 @@ addJetCollection(
     jetSource = cms.InputTag('ak4PFJetsCHS'),
     algo = 'ak4',
     rParam = 0.4,
-    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     trackSource = cms.InputTag('unpackedTracksAndVertices'),
     pvSource = cms.InputTag('unpackedTracksAndVertices'),
     btagDiscriminators = ['combinedSecondaryVertexBJetTags'],
@@ -81,7 +120,7 @@ addJetCollection(
     jetSource = cms.InputTag('ak8PFJetsCHS'),
     algo = 'ak8',
     rParam = 0.8,
-    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     trackSource = cms.InputTag('unpackedTracksAndVertices'),
     pvSource = cms.InputTag('unpackedTracksAndVertices'),
     )
@@ -92,7 +131,7 @@ addJetCollection(
     jetSource = cms.InputTag('ak10PFJetsCHS'),
     algo = 'ak10',
     rParam = 1.0,
-    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    jetCorrections = ('AK10PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     trackSource = cms.InputTag('unpackedTracksAndVertices'),
     pvSource = cms.InputTag('unpackedTracksAndVertices'),
     )
@@ -103,7 +142,7 @@ addJetCollection(
     jetSource = cms.InputTag('ak12PFJetsCHS'),
     algo = 'ak12',
     rParam = 1.2,
-    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    jetCorrections = ('AK10PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     trackSource = cms.InputTag('unpackedTracksAndVertices'),
     pvSource = cms.InputTag('unpackedTracksAndVertices'),
     )
@@ -114,7 +153,7 @@ addJetCollection(
     jetSource = cms.InputTag('ak15PFJetsCHS'),
     algo = 'ak15',
     rParam = 1.5,
-    jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    jetCorrections = ('AK10PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
     trackSource = cms.InputTag('unpackedTracksAndVertices'),
     pvSource = cms.InputTag('unpackedTracksAndVertices'),
     )

@@ -30,6 +30,7 @@
 #include "VHbb/HbbProducer/interface/HbbTuple.h"
 
 #include <DataFormats/PatCandidates/interface/Jet.h>
+#include <DataFormats/PatCandidates/interface/Muon.h>
 
 #include <vector>
 #include <memory>
@@ -38,7 +39,6 @@ using namespace std;
 
 typedef edm::Handle< edm::View< pat::Jet > > h_patJets;
 typedef vector<Hbb::Jet> v_HbbJets;
-//typedef auto_ptr< v_HbbJets > p_v_HbbJets;
 
 //
 // class declaration
@@ -63,6 +63,7 @@ private:
   
   edm::InputTag _rhoSource;
   edm::InputTag _AK4Source, _AK8Source, _AK10Source, _AK12Source, _AK15Source;
+  edm::InputTag _muonSource;
   
   Hbb::Tuple _output;
   
@@ -91,6 +92,7 @@ HbbProducer::HbbProducer(const edm::ParameterSet& iConfig)
   _AK10Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK10Source"));
   _AK12Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK12Source"));
   _AK15Source=edm::InputTag(iConfig.getParameter<edm::InputTag>("AK15Source"));
+  _muonSource=edm::InputTag(iConfig.getParameter<edm::InputTag>("muonSource"));
 
   //register your products
   produces<Hbb::Tuple>();
@@ -143,10 +145,17 @@ HbbProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(_AK15Source,AK15jets);
   fatJetInputs.insert(pair<string,h_patJets >(string("AK15"),AK15jets));
   fatJetOutputs.insert(pair<string, v_HbbJets* >(string("AK15"),&_output.AK15PFCHS));
+  
+  edm::Handle< edm::View< pat::Muon > > inputMuons;
+  iEvent.getByLabel(_muonSource,inputMuons);
 
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  //Event quantities
 
   _output.rho=*rho;
+
+  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  //Jets
 
   for(auto fatJetCollection=fatJetInputs.begin(); fatJetCollection!=fatJetInputs.end(); ++fatJetCollection){
     string name=fatJetCollection->first;
@@ -172,6 +181,18 @@ HbbProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     *fatJetOutputs[name]=outputJets;
   }
   
+  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  //Muons
+
+  for(auto inputMuon=inputMuons->begin(); inputMuon!=inputMuons->end(); ++inputMuon){
+    Hbb::Muon muon=Hbb::Muon();
+    muon.lv.SetPtEtaPhiM(inputMuon->pt(), inputMuon->eta(), inputMuon->phi(), inputMuon->mass());
+    muon.charge=inputMuon->charge();
+    _output.Muons.push_back(muon);
+  }
+
+  //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   auto_ptr<Hbb::Tuple> pOut(new Hbb::Tuple(_output));
   iEvent.put(pOut);
 

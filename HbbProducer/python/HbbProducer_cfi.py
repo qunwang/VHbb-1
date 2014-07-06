@@ -8,4 +8,6 @@ HbbProducer = cms.EDProducer('HbbProducer',
                              AK10Source=cms.InputTag('patJetsAK10PFCHS'),
                              AK12Source=cms.InputTag('patJetsAK12PFCHS'),
                              AK15Source=cms.InputTag('patJetsAK15PFCHS'),
+
+                             muonSource=cms.InputTag('selectedMuons'),
 )

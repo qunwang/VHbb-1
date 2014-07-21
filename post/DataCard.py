@@ -21,7 +21,7 @@ leptonEffSys='1.03'
 signalEWKSys='1.02'
 signalQCDSys='1.05'
 backgroundNormSys='1.1'
-ZJetsSys='1.15'  #FIX ME - Is this correct?
+ZJetsSys='1.10'  #FIX ME - Is this correct?
 singleTopSys='1.15'
 dibosonSys='1.15'
 QCDSys='2'
@@ -32,7 +32,7 @@ METSys='1.03'  #FIX ME - should this be a shape uncertainty?
 #FIX ME - Should there be QCD scale uncertainties?
 flatSystematics=[('lumi',{'Wh_125p6_0P':lumiSys,'Wh_125p6_0M':lumiSys,'ZJets':lumiSys,'singleTop':lumiSys,'QCD':lumiSys,'VZ':lumiSys,'VV':lumiSys}),
                  ('leptonEff',{'Wh_125p6_0P':leptonEffSys,'Wh_125p6_0M':leptonEffSys,'ZJets':leptonEffSys,'singleTop':leptonEffSys,'QCD':leptonEffSys,'VZ':leptonEffSys,'VV':leptonEffSys}),
-                 ('MET',{'Wh_125p6_0P':METSys,'Wh_125p6_0M':METSys,'ZJets':METSys,'singleTop':METSys,'QCD':METSys,'VZ':METSys,'VV':METSys}),
+                 #('MET',{'Wh_125p6_0P':METSys,'Wh_125p6_0M':METSys,'ZJets':METSys,'singleTop':METSys,'QCD':METSys,'VZ':METSys,'VV':METSys}),
                  ('qqbarPDF',{'Wh_125p6_0P':qqbarPDFSys,'Wh_125p6_0M':qqbarPDFSys,'VZ':qqbarPDFSys,'VV':qqbarPDFSys}),
                  ('ggPDF',{'singleTop':ggPDFSys,'QCD':ggPDFSys}),
                  ('signalBoostEWK',{'Wh_125p6_0P':signalEWKSys,'Wh_125p6_0M':signalEWKSys}),

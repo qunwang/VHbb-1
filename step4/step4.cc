@@ -109,9 +109,13 @@ void step4::Loop(){
       
       if (Cut(ientry) != 1) continue;  //Pre-selection
 
+      //correction for b-jet energy regression
+      hJet_e[0] *= hJet_ptCorr[0]/hJet_pt[0]; 
+      hJet_e[1] *= hJet_ptCorr[1]/hJet_pt[1];
+
       //Get the 4-vect of Hbb, Wlv                                                                                                                                                              
-      bjet0.SetPtEtaPhiE(hJet_pt[0],hJet_eta[0], hJet_phi[0],hJet_e[0]);
-      bjet1.SetPtEtaPhiE(hJet_pt[1],hJet_eta[1], hJet_phi[1],hJet_e[1]);
+      bjet0.SetPtEtaPhiE(hJet_ptCorr[0],hJet_eta[0], hJet_phi[0],hJet_e[0]);
+      bjet1.SetPtEtaPhiE(hJet_ptCorr[1],hJet_eta[1], hJet_phi[1],hJet_e[1]);
 
       chargelep.SetPtEtaPhiM(vLepton_pt[0], vLepton_eta[0], vLepton_phi[0], vLepton_mass[0]);
       if(vLepton_type[0]==11){ lep_type="electron";}
@@ -122,7 +126,14 @@ void step4::Loop(){
 
       //use MET type1 corr                                                                                                                                                                      
       met.SetPtEtaPhiE(METtype1corr_et, 0, METtype1corr_phi, METtype1corr_et);
-      neutrino=getNeutrino(chargelep, met, lep_type, 0);
+      
+      //getNeutrino(chargelep, met, lep_type, int method, int RealSolType, int ComplexSolType, scaleMETpt = true/false)
+      neutrino=getNeutrino(chargelep, met, lep_type, 0, 0, 0, 1); // default
+      //neutrino=getNeutrino(chargelep, met, lep_type, 1, 0, 0, 1); // Method 1 --> same as default
+      //neutrino=getNeutrino(chargelep, met, lep_type, 2, 2, 0, 0); // Method 2
+      //neutrino=getNeutrino(chargelep, met, lep_type, 3, 0, 0, 1); // Method 3
+      //neutrino=getNeutrino(chargelep, met, lep_type, 4, 0, 1, 0); // Method 4
+      //neutrino=getNeutrino(chargelep, met, lep_type, 5, 2, 0, 1); // Method 5
       
       higgs=bjet0+bjet1;
       wlep=chargelep+neutrino;
@@ -170,9 +181,9 @@ void step4::Loop(){
       x_rapidityVH = (float) p4_VH.Rapidity();
 
       //float mH_, float costheta1_, float costheta2_, float phi_, float m_, float Y_, bool withAcc = false, int signalNo
-      MELA_SM=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 0);
-      MELA_PS=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 1);
-      MELA_HO=KDCalc->getLikelihood(p4_Hbb.M(), a_costheta1, a_costheta2, a_Phi, p4_VH.M(), p4_VH.Rapidity(), false, 2);
+      MELA_SM=KDCalc->getLikelihood(p4_Hbb.M(), x_costheta1, x_costheta2, x_phi, p4_VH.M(), p4_VH.Rapidity(), false, 0);
+      MELA_PS=KDCalc->getLikelihood(p4_Hbb.M(), x_costheta1, x_costheta2, x_phi, p4_VH.M(), p4_VH.Rapidity(), false, 1);
+      MELA_HO=KDCalc->getLikelihood(p4_Hbb.M(), x_costheta1, x_costheta2, x_phi, p4_VH.M(), p4_VH.Rapidity(), false, 2);
       
       //W pT Reweighting
       double wptslope = -1.057e-03;
@@ -233,7 +244,7 @@ std::pair<float,float> step4::efficiencyFromPtEta(float pt1, float eta1, TTree *
 }
 
 
-TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met, TString lep_type, Int_t diffMode)//diffMode: different neutrino vz                                                                                                                                               
+TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met, TString lep_type, Int_t method, Int_t diffModeR, Int_t diffModeC, Int_t scaleMETpt)//diffMode: different neutrino vz                                                                                                                                               
 {
 
   TLorentzVector p4_neutrino;
@@ -241,14 +252,14 @@ TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met, TString
   metzcal.SetMET(met);
   metzcal.SetLepton(chargelep);
   if(lep_type=="electron" || lep_type=="muon") metzcal.SetLeptonType(lep_type.Data());
-  Double_t pzNu1=metzcal.Calculate(diffMode);
+  Double_t pzNu1=metzcal.Calculate(method, diffModeR, diffModeC);
   //Double_t pzNu2=metzcal.getOther();
 
   //Double_t energy=TMath::Sqrt(met.E()*met.E()+pzNu1*pzNu1);
   Double_t energy = TMath::Sqrt(met.Px()*met.Px() + met.Py()*met.Py() + pzNu1*pzNu1 );
   p4_neutrino.SetPxPyPzE(met.Px(), met.Py(), pzNu1, energy);
 
-  if(metzcal.IsComplex()){
+  if(metzcal.IsComplex() && scaleMETpt){
 
     double event_met_pfmetPhi = met.Phi();
     double b_nvpz = pzNu1;

@@ -311,20 +311,30 @@ class Plot:
         gStyle.SetErrorX(0.5)
 
         yDiv=0.35
+        if blind == True:
+            yDiv=0.1
+            
+        uMargin = 0
+        if blind == True:
+            uMargin = 0.15
+             
+        rMargin=.08
+        
         self.uPad=TPad("uPad","",0,yDiv,1,1) #for actual plots
         self.uPad.SetTopMargin(0.07)
-        self.uPad.SetBottomMargin(0)
-        self.uPad.SetRightMargin(.05)
+        self.uPad.SetBottomMargin(uMargin)
+        self.uPad.SetRightMargin(rMargin)
         self.uPad.SetLeftMargin(.18)
         self.uPad.Draw()
-                                    
-        self.lPad=TPad("lPad","",0,0,1,yDiv) #for sigma runner
-        self.lPad.SetTopMargin(0)
-        self.lPad.SetBottomMargin(.4)
-        self.lPad.SetRightMargin(.05)
-        self.lPad.SetLeftMargin(.18)
-        self.lPad.SetGridy()
-        self.lPad.Draw()
+
+        if blind == False:                                    
+            self.lPad=TPad("lPad","",0,0,1,yDiv) #for sigma runner
+            self.lPad.SetTopMargin(0)
+            self.lPad.SetBottomMargin(.4)
+            self.lPad.SetRightMargin(rMargin)
+            self.lPad.SetLeftMargin(.18)
+            self.lPad.SetGridy()
+            self.lPad.Draw()
 
         self.extraHists['Data'].SetMaximum(2*self.extraHists['Data'].GetMaximum())
         self.extraHists['Data'].SetMinimum(0.025)
@@ -375,11 +385,14 @@ class Plot:
             gStyle.SetHatchesLineWidth(1)
             self.uncBand.Draw("SAME E2")
 
-            legend=TLegend(0.55,0.55,0.90,0.90)
-            legend.SetShadowColor(0);
-            legend.SetFillColor(0);
-            legend.SetLineColor(0);
-            legend.AddEntry(self.extraHists['Data'],"Data")
+            legend=TLegend(0.6,0.6,0.90,0.90)
+            SetOwnership( legend, 0 )   # 0 = release (not keep), 1 = keep
+            legend.SetShadowColor(0)
+            legend.SetFillColor(0)
+            legend.SetLineColor(0)
+            legend.SetTextFont(42)
+            if blind == False:
+                legend.AddEntry(self.extraHists['Data'],"Data")
             for bName,bLabel in zip(reversed(['QCD','ZJets','WJets','singleTop','ttbar','VV','VZ']),reversed(['QCD','Z+jets','W+jets','single top','ttbar','VV','VZ'])):
                 try: legend.AddEntry(self.extraHists[bName],bLabel,"f")
                 except: pass
@@ -395,6 +408,7 @@ class Plot:
             prelimTex.SetNDC()
             prelimTex.SetTextSize(0.04)
             prelimTex.SetTextAlign(31) # align right
+            prelimTex.SetTextFont(42)
             lumi=self.lumi/1000.
             lumi=round(lumi,2)
             prelimTex.DrawLatex(0.9, 0.95, "CMS Preliminary, "+str(lumi)+" fb^{-1} at #sqrt{s} = 8 TeV");
@@ -403,24 +417,26 @@ class Plot:
             channelTex.SetNDC()
             channelTex.SetTextSize(0.08)
             channelTex.SetTextAlign(31)
+            channelTex.SetTextFont(42)
             if self.Vtype==0: text='Z #rightarrow #mu#mu'
             elif self.Vtype==1: text='Z #rightarrow ee'
             elif self.Vtype==2: text='W #rightarrow #mu#nu'
             else: text='W #rightarrow e#nu'
             channelTex.DrawLatex(0.5, 0.83, text);
 
-            self.lPad.cd()
-            self.pull=self.extraHists['Data'].Clone("pull")
-            for binNo in range(0,self.nBinsX+2):
-                if self.extraHists['Total Background'].GetBinError(binNo)!=0:
-                    self.pull.SetBinContent(binNo,(self.extraHists['Data'].GetBinContent(binNo)-self.extraHists['Total Background'].GetBinContent(binNo))/sqrt(self.extraHists['Total Background'].GetBinError(binNo)**2+self.extraHists['Data'].GetBinError(binNo)**2))
-            self.pull.SetMaximum(3)
-            self.pull.SetMinimum(-3)
-            self.pull.SetFillColor(2)
-            self.pull.SetLineColor(2)
-            self.formatLowerHist(self.pull)
-            self.pull.GetYaxis().SetTitle('Pull')
-            self.pull.Draw("HIST")
+            if blind == False:
+                self.lPad.cd()
+                self.pull=self.extraHists['Data'].Clone("pull")
+                for binNo in range(0,self.nBinsX+2):
+                    if self.extraHists['Total Background'].GetBinError(binNo)!=0:
+                        self.pull.SetBinContent(binNo,(self.extraHists['Data'].GetBinContent(binNo)-self.extraHists['Total Background'].GetBinContent(binNo))/sqrt(self.extraHists['Total Background'].GetBinError(binNo)**2+self.extraHists['Data'].GetBinError(binNo)**2))
+                self.pull.SetMaximum(3)
+                self.pull.SetMinimum(-3)
+                self.pull.SetFillColor(2)
+                self.pull.SetLineColor(2)
+                self.formatLowerHist(self.pull)
+                self.pull.GetYaxis().SetTitle('Pull')
+                self.pull.Draw("HIST")
 
             self.canvas.Write()
             self.canvas.SaveAs(outputDir+'/'+self.name+'.pdf')
@@ -504,11 +520,20 @@ class Plot:
     def formatUpperHist(self,histogram):
         histogram.GetXaxis().SetLabelSize(0)
 
+        if blind == True:
+            histogram.GetXaxis().SetLabelSize(0.08)
+            histogram.GetXaxis().SetTitleSize(0.08)
+            histogram.GetXaxis().SetTitle(self.xTitle)
+            histogram.GetYaxis().SetLabelSize(0.08)
+            histogram.GetYaxis().SetTitleSize(0.08)
+            histogram.GetYaxis().SetTitleOffset(1.2)
+        else:
+            histogram.GetYaxis().SetLabelSize(0.08)
+            histogram.GetYaxis().SetTitleSize(0.12)
+            histogram.GetYaxis().SetTitleOffset(.75)
+
         histogram.GetYaxis().CenterTitle()
-        histogram.GetYaxis().SetLabelSize(0.08)
-        histogram.GetYaxis().SetTitleSize(0.12)
-        histogram.GetYaxis().SetTitleOffset(.75)
-                
+        
         if self.yLog:
             self.uPad.SetLogy()
             histogram.SetMaximum(500*histogram.GetMaximum())

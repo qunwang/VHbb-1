@@ -1,84 +1,28 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sun Feb 23 13:16:03 2014 by ROOT version 5.32/00
+// Thu Jun 12 20:54:48 2014 by ROOT version 5.34/18
 // from TTree tree/myTree
 // found on file: /eos/uscms/store/user/sethzenz/fromdcache/Ntuple_Step1V42_Step2Tag_EDMV42_Step2_V6_MC_varsAddedSummed_v19/nominal/Step2_WHiggs0P_M-125p6_8TeV-JHUGenV4-private_000_varsBDTsAdded.root
 //////////////////////////////////////////////////////////
 
-#ifndef step4_h
-#define step4_h
+#ifndef step3p5_h
+#define step3p5_h
 
+#include<iostream>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
 #include <math.h>
 
-#include "METzCalculator.h"
-#include "KDcalcPPWH.cc"
-#include "RooRealVar.h"
-
-typedef struct 
-{
-  float et; 
-  float sumet;   
-  float sig;
-  float phi;
-} METInfo;
-
-typedef struct
-{
-  int HiggsFlag;
-  float mass;
-  float pt;
-  float eta;
-  float phi;
-  float dR;
-  float dPhi;
-  float dEta;
-} HiggsInfo;
-
-typedef struct 
-{
-  float mass;  //MT in case of W
-  float pt;
-  float eta;
-  float phi;
-} TrackInfo;
-
 // Header file for the classes stored in the TTree if any.
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
-class step4 {
+class step3p5 {
 public :
-   TTree          *inputTree;   //!pointer to the analyzed TTree or TChain
-   TFile          *inputFile, *outputFile;
+   TTree          *inputTree, *inputTreeNom;   //!pointer to the analyzed TTree or TChain
+   TFile          *inputFile, *inputFileNom, *outputFile;//
    Int_t           fCurrent; //!current Tree number in a TChain
-
-   //File and tree for electron trigger correction (weightEleTrigger)
-   TTree          *treeEleTrigger;
-   TFile          *fileEleTrigger;
-
-   Float_t x_costheta1;
-   Float_t x_costheta2;
-   Float_t x_phi;
-   Float_t x_costhetastar;
-   Float_t x_phi1;
-   Float_t x_phi2;
-   Float_t x_mVH;
-   Float_t x_rapidityVH;
-
-   KDcalcPPWH *KDCalc;
-   Float_t MELA_SM;
-   Float_t MELA_PS;
-   Float_t MELA_HO;
-
-   Float_t lMETdPhi;
-   
-   Float_t weightWpt_WJets;
-   Float_t weightWpt_TTbar;
-
-   Float_t weightEleTrigger;
 
    // Declaration of leaf types
    Float_t         lheV_pt;
@@ -437,26 +381,6 @@ public :
    Float_t         BDT_8TeV_VVSig_0b1b2bWjetsNewTTbarBkg_newCuts4;
    Float_t         BDT_8TeV_VVSig_NewTTbarBkg_newCuts4;
 
-   TBranch *b_x_costheta1;
-   TBranch *b_x_costheta2;
-   TBranch *b_x_phi;
-   TBranch *b_x_costhetastar;
-   TBranch *b_x_phi1;
-   TBranch *b_x_phi2;
-   TBranch *b_x_mVH;
-   TBranch *b_x_rapidityVH;
-
-   TBranch *b_MELA_SM;
-   TBranch *b_MELA_PS;
-   TBranch *b_MELA_HO;
-   
-   TBranch *b_lMETdPhi;
-
-   TBranch *b_weightWpt_WJets;
-   TBranch *b_weightWpt_TTbar;
-
-   TBranch *b_weightEleTrigger;
-
    // List of branches
    TBranch        *b_lheV_pt;   //!
    TBranch        *b_lheHT;   //!
@@ -766,60 +690,49 @@ public :
    TBranch        *b_BDT_8TeV_VVSig_0b1b2bWjetsNewTTbarBkg_newCuts4;   //!
    TBranch        *b_BDT_8TeV_VVSig_NewTTbarBkg_newCuts4;   //!
 
-   step4(TString inputFileName, TString outputFileName);
-   virtual ~step4();
-   virtual Int_t    Cut(Long64_t entry);
+   step3p5(TString inputFileName, TString inputFileNomName, TString outputFileName);
+   virtual ~step3p5();
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
    virtual void     Loop();
    virtual Bool_t   Notify();
-   virtual void     Show(Long64_t entry = -1);
    
-   std::pair<float,float> efficiencyFromPtEta(float pt1, float eta1, TTree *t);
-
+   std::pair<float,float> JERenergyCorrection(Long64_t entry, float pt0, float pt1, TTree *t);
 };
 
 #endif
 
-#ifdef step4_cxx
-step4::step4(TString inputFileName, TString outputFileName) : inputTree(0), inputFile(0), outputFile(0), treeEleTrigger(0), fileEleTrigger(0)
+#ifdef step3p5_cxx
+
+step3p5::step3p5(TString inputFileName, TString inputFileNomName, TString outputFileName) : inputTree(0), inputFile(0), inputTreeNom(0), inputFileNom(0), outputFile(0)
 {
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
-  inputFile=TFile::Open(inputFileName);
+  inputFile=new TFile(inputFileName);
   inputTree=(TTree*)inputFile->Get("tree");
   
+  inputFileNom=new TFile(inputFileNomName);
+  inputTreeNom=(TTree*)inputFileNom->Get("tree");
+  
   outputFile=new TFile(outputFileName,"RECREATE");
-
-  KDCalc=new KDcalcPPWH(8000,125.6);
-
-  //Stuff for electron trigger efficiency
-  //fileEleTrigger=new TFile("/eos/uscms/store/user/sethzenz/fromdcache/EleRecoId.Presel.2012ABCD.root","READ");
-  fileEleTrigger=new TFile("EleRecoId.Presel.2012ABCD.root","READ");
-  if(fileEleTrigger->IsZombie()){
-    cout << "Input file for electron trigger correction cannot be opened" << endl;
-    delete fileEleTrigger;
-    fileEleTrigger=0;
-  }
-  treeEleTrigger=(TTree*)fileEleTrigger->Get("tree");
 
   Init(inputTree);
 }
 
-step4::~step4()
+step3p5::~step3p5()
 {
    if (!inputTree) return;
    delete inputTree->GetCurrentFile();
 }
 
-Int_t step4::GetEntry(Long64_t entry)
+Int_t step3p5::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
    if (!inputTree) return 0;
    return inputTree->GetEntry(entry);
 }
-Long64_t step4::LoadTree(Long64_t entry)
+Long64_t step3p5::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
    if (!inputTree) return -5;
@@ -832,7 +745,7 @@ Long64_t step4::LoadTree(Long64_t entry)
    return centry;
 }
 
-void step4::Init(TTree *tree)
+void step3p5::Init(TTree *tree)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -847,26 +760,6 @@ void step4::Init(TTree *tree)
    inputTree = tree;
    fCurrent = -1;
    inputTree->SetMakeClass(1);
-
-   b_x_costheta1=inputTree->Branch("x_costheta1",&x_costheta1,"x_costheta1/F");
-   b_x_costheta2=inputTree->Branch("x_costheta2",&x_costheta2,"x_costheta2/F");
-   b_x_phi=inputTree->Branch("x_phi",&x_phi,"x_phi/F");
-   b_x_costhetastar=inputTree->Branch("x_costhetastar",&x_costhetastar,"x_costhetastar/F");
-   b_x_phi1=inputTree->Branch("x_phi1",&x_phi1,"x_phi1/F");
-   b_x_phi2=inputTree->Branch("x_phi2",&x_phi2,"x_phi2/F");
-   b_x_mVH=inputTree->Branch("x_mVH",&x_mVH,"x_mVH/F");
-   b_x_rapidityVH=inputTree->Branch("x_rapidityVH",&x_rapidityVH,"x_rapidityVH/F");
-   
-   b_MELA_SM=inputTree->Branch("MELA_SM",&MELA_SM,"MELA_SM/F");
-   b_MELA_PS=inputTree->Branch("MELA_PS",&MELA_PS,"MELA_PS/F");
-   b_MELA_HO=inputTree->Branch("MELA_HO",&MELA_HO,"MELA_HO/F");
-
-   b_lMETdPhi=inputTree->Branch("lMETdPhi",&lMETdPhi,"lMETdPhi/F");
-
-   b_weightWpt_WJets=inputTree->Branch("weightWpt_WJets",&weightWpt_WJets,"weightWpt_WJets/F");
-   b_weightWpt_TTbar=inputTree->Branch("weightWpt_TTbar",&weightWpt_TTbar,"weightWpt_TTbar/F");
-
-   b_weightEleTrigger=inputTree->Branch("weightEleTrigger",&weightEleTrigger,"weightEleTrigger/F");
 
    inputTree->SetBranchAddress("lheV_pt", &lheV_pt, &b_lheV_pt);
    inputTree->SetBranchAddress("lheHT", &lheHT, &b_lheHT);
@@ -1175,10 +1068,9 @@ void step4::Init(TTree *tree)
    inputTree->SetBranchAddress("BDT_8TeV_VVSig_0b1b2bWjetsBkg_newCuts4", &BDT_8TeV_VVSig_0b1b2bWjetsBkg_newCuts4, &b_BDT_8TeV_VVSig_0b1b2bWjetsBkg_newCuts4);
    inputTree->SetBranchAddress("BDT_8TeV_VVSig_0b1b2bWjetsNewTTbarBkg_newCuts4", &BDT_8TeV_VVSig_0b1b2bWjetsNewTTbarBkg_newCuts4, &b_BDT_8TeV_VVSig_0b1b2bWjetsNewTTbarBkg_newCuts4);
    inputTree->SetBranchAddress("BDT_8TeV_VVSig_NewTTbarBkg_newCuts4", &BDT_8TeV_VVSig_NewTTbarBkg_newCuts4, &b_BDT_8TeV_VVSig_NewTTbarBkg_newCuts4);
-   Notify();
 }
 
-Bool_t step4::Notify()
+Bool_t step3p5::Notify()
 {
    // The Notify() function is called when a new file is opened. This
    // can be either for a new TTree in a TChain or when when a new TTree
@@ -1189,26 +1081,4 @@ Bool_t step4::Notify()
    return kTRUE;
 }
 
-void step4::Show(Long64_t entry)
-{
-// Print contents of entry.
-// If entry is not specified, print current entry
-   if (!inputTree) return;
-   inputTree->Show(entry);
-}
-Int_t step4::Cut(Long64_t entry)
-{
-// This function may be called from Loop.
-// returns  1 if entry is accepted.
-// returns 0 otherwise.
-
-  if( (Vtype<2 || Vtype>3) || V_pt<100 || hJet_ptCorr[1]<30 || H_ptCorr<100 || METtype1corr_et<45 || (hJet_pt[0] < 0.0 || hJet_pt[1] < 0.0)) return 0;   //Valid for W->lnu only!
-  //if(Vtype>3) return 0;  //Only keep Z->ell ell and W->ell nu events - 0=Zmumu, 1=Zee, 2=Wmunu, 3=Wenu
-    
-  return 1;
-}
-
-TLorentzVector getNeutrino(TLorentzVector chargelep, TLorentzVector met,TString lep_type, Int_t method=0, Int_t diffModeR=0, Int_t diffModeC=0, Int_t scaleMETpt=true);//diffMode: different neutrino vz 
-void computeAngles(TLorentzVector thep4H, TLorentzVector thep4Z1, TLorentzVector thep4M11, TLorentzVector thep4M12, TLorentzVector thep4Z2, TLorentzVector thep4M21, TLorentzVector thep4M22, double& costheta1, double& costheta2, double& Phi, double& costhetastar, double& Phi1, double& Phi2);
-
-#endif // #ifdef step4_cxx
+#endif // #ifdef step3p5_cxx
